@@ -14,10 +14,18 @@ const planetData = [
     { radius: 1.8, distance: 22, speed: 0.00004, color: 0xa5673f, speedrotation: 0.04,},
 ];
 
+//Movimiento de la cámara
 var camforward, camright;
 var camspeed = 2;
 var forward = 0;
 var right = 0;
+var rotsensitivity = 0.001;
+let yaw=0
+let pitch=0;
+
+// Crear un objeto auxiliar para controlar la rotación de la cámara
+const cameraHolder = new THREE.Object3D();
+
 
 init();
 animate();
@@ -43,8 +51,8 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     // Controles de órbita
-    controls = new OrbitControls(camera, renderer.domElement);
-    controls.enableDamping = true;
+    // controls = new OrbitControls(camera, renderer.domElement);
+    // controls.enableDamping = true;
 
     //Movimento de la cámara
     camforward = new THREE.Vector3();
@@ -52,7 +60,8 @@ function init() {
     camright = new THREE.Vector3();
     camright.crossVectors(camera.up, camforward).normalize();
 
-
+    cameraHolder.add(camera); // Agregar la cámara dentro del objeto
+    scene.add(cameraHolder);
     // Crear geometría
     StarsGeometry();
     SunGeometry();
@@ -100,7 +109,7 @@ function PlanetGeometry() {
     planetData.forEach((data) => {
         const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
         const planettexture = loadertexture.load(
-            "../images/planets/earthmap10k.jpg"
+            "/earthmap4k.jpg"
         );
         const material = new THREE.MeshPhongMaterial({ map: planettexture });
         const planet = new THREE.Mesh(geometry, material);
@@ -129,8 +138,8 @@ function animate() {
         planet.rotation.y += planet.userData.speedrotation;
     });
 
-    controls.update();
-    renderer.render(scene, camera);
+    // controls.update();
+    
 
     const dt = clock.getDelta();
   
@@ -145,6 +154,8 @@ function animate() {
     if (right!=0) {
         camera.position.add(camright.clone().multiplyScalar(right * dt *camspeed));
     }
+
+    renderer.render(scene, camera);
 }
 
 
@@ -174,11 +185,11 @@ window.addEventListener("keydown", (event) => {
             break;
         case "a":
         case "A":
-            right = -1;
+            right = 1;
             break;
         case "d":
         case "D":
-            right = 1;
+            right = -1;
             break;
     }
 
@@ -207,3 +218,44 @@ window.addEventListener("keyup", (event) => {
     }
 
 });
+
+// Activar el modo de captura del cursor al hacer clic
+document.body.addEventListener("click", () => {
+    document.body.requestPointerLock();
+});
+
+// Escuchar cambios en el estado del Pointer Lock
+document.addEventListener("pointerlockchange", () => {
+    if (document.pointerLockElement === document.body) {
+        console.log("Pointer Lock Activado");
+        document.addEventListener("mousemove", onMouseMove, false);
+    } else {
+        console.log("Pointer Lock Desactivado");
+        document.removeEventListener("mousemove", onMouseMove, false);
+    }
+});
+
+function onMouseMove(event) {
+   
+  
+
+    const dx = event.movementX || 0;
+    const dy = event.movementY || 0;
+    
+    // Ajustar la rotación con la sensibilidad configurada
+    yaw -= dx * rotsensitivity;
+    pitch -= dy * rotsensitivity;
+
+    // Limitar el ángulo de pitch para que la cámara no gire al revés
+    pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
+    // Crear quaterniones para rotación en Y (yaw) y X (pitch)
+    const quaternionYaw = new THREE.Quaternion();
+    quaternionYaw.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
+
+    const quaternionPitch = new THREE.Quaternion();
+    quaternionPitch.setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
+
+    // Aplicar la rotación directamente a la cámara, no al cameraHolder
+    camera.quaternion.copy(quaternionYaw);
+    camera.quaternion.multiply(quaternionPitch);
+};
