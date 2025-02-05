@@ -1,5 +1,4 @@
 import * as THREE from "three";
-import { OrbitControls } from "https://cdn.jsdelivr.net/npm/three@0.157.0/examples/jsm/controls/OrbitControls.js";
 
 //Loader
 const loadertexture = new THREE.TextureLoader();
@@ -13,6 +12,8 @@ const planetData = [
     { radius: 1.5, distance: 16, speed: 0.00006, color: 0x3d9970, speedrotation: 0.03,},
     { radius: 1.8, distance: 22, speed: 0.00004, color: 0xa5673f, speedrotation: 0.04,},
 ];
+var sun;
+
 
 //Movimiento de la cámara
 var camforward, camright;
@@ -20,11 +21,10 @@ var camspeed = 2;
 var forward = 0;
 var right = 0;
 var rotsensitivity = 0.001;
-let yaw=0
+let yaw=0;
 let pitch=0;
-
-// Crear un objeto auxiliar para controlar la rotación de la cámara
-const cameraHolder = new THREE.Object3D();
+var camCollisionSensitive = 60; //Suvidad con la que la camara colisiona con los planetas
+var collision = false;
 
 
 init();
@@ -50,9 +50,6 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     document.body.appendChild(renderer.domElement);
 
-    // Controles de órbita
-    // controls = new OrbitControls(camera, renderer.domElement);
-    // controls.enableDamping = true;
 
     //Movimento de la cámara
     camforward = new THREE.Vector3();
@@ -60,8 +57,7 @@ function init() {
     camright = new THREE.Vector3();
     camright.crossVectors(camera.up, camforward).normalize();
 
-    cameraHolder.add(camera); // Agregar la cámara dentro del objeto
-    scene.add(cameraHolder);
+
     // Crear geometría
     StarsGeometry();
     SunGeometry();
@@ -101,8 +97,9 @@ function StarsGeometry() {
 function SunGeometry() {
     const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
     const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
-    const sun = new THREE.Mesh(sunGeometry, sunMaterial);
-    scene.add(sun);
+    const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
+    sun = sunMesh;
+    scene.add(sunMesh);
 }
 // Planetas
 function PlanetGeometry() {
@@ -128,7 +125,7 @@ function PlanetGeometry() {
 function animate() {
     requestAnimationFrame(animate);
 
-    // Movimiento de los planetas
+    //Planet Movement
     planets.forEach((planet) => {
         planet.userData.angle += planet.userData.speed;
         planet.position.x =
@@ -138,28 +135,58 @@ function animate() {
         planet.rotation.y += planet.userData.speedrotation;
     });
 
-    // controls.update();
     
-
+    //Camera Movement
     const dt = clock.getDelta();
   
     camera.updateProjectionMatrix();
     
     camera.getWorldDirection(camforward);
     camright.crossVectors(camera.up, camforward).normalize();
+    
+    if(!collision){
+        if (forward!=0) {
+            camera.position.add(camforward.clone().multiplyScalar(forward * dt *camspeed));
+        }
+        if (right!=0) {
+            camera.position.add(camright.clone().multiplyScalar(right * dt *camspeed));
+        }
+    }   
 
-    if (forward!=0) {
-        camera.position.add(camforward.clone().multiplyScalar(forward * dt *camspeed));
-    }
-    if (right!=0) {
-        camera.position.add(camright.clone().multiplyScalar(right * dt *camspeed));
-    }
+    // Colisiones
+    CheckPlanetsCollisions();
+    CheckSunCollision();
+
 
     renderer.render(scene, camera);
 }
 
+//Collisions
+function CheckPlanetsCollisions() {
+    //Check planet collisions
+    planets.forEach((planet) => {
+        collision = false;
+        const distance = camera.position.distanceTo(planet.position);
+        if (distance < planet.geometry.parameters.radius + camera.near + 0.2) {
+            console.log("Colisión con planeta");
+            const dt = clock.getDelta();
+            const newpos = camera.position.clone().add(camforward.clone().multiplyScalar(-camspeed));
+            camera.position.lerp(newpos, dt * camCollisionSensitive);
+            collision = true;
+        }
+    });
+}
 
-
+function CheckSunCollision(){
+    collision = false;
+    const distance = camera.position.distanceTo(sun.position);
+    if (distance < sun.geometry.parameters.radius + camera.near + 0.2) {
+        const dt = clock.getDelta();
+        const newpos = camera.position.clone().add(camforward.clone().multiplyScalar(-camspeed));
+        camera.position.lerp(newpos, dt * camCollisionSensitive);
+        collision = true;
+    }
+}
 
 // Redimensionar
 window.addEventListener("resize", () => {
@@ -237,8 +264,6 @@ document.addEventListener("pointerlockchange", () => {
 
 function onMouseMove(event) {
    
-  
-
     const dx = event.movementX || 0;
     const dy = event.movementY || 0;
     
