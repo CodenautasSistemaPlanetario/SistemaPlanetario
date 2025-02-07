@@ -223,7 +223,6 @@ function LoadArrayPreguntas(planetname){
             break;
     }
     
-    console.log(Preguntas);
     
     if(alreadypladed)
     {
@@ -282,7 +281,6 @@ function onClick(event) {
         if (clickedButton.userData.index !== undefined) {
             if (cuestionIndex < Preguntas.length && clickedButton.userData.index === Preguntas[cuestionIndex][2]) {
                 points++;
-                console.log('Correcto');
             }
             if(clickedButton.userData.index === 4){
                 alreadypladed = true;

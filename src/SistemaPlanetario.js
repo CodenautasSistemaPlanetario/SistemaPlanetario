@@ -10,11 +10,11 @@ var clock;
 const planets = [];
 const planetData = [
     { name:'AquaTerra',radius: 2,distance: 8,speed: 0, color: 0x2194ce, speedrotation: 0.01,},
-    { name:'Zephyria',radius: 2, distance: 12, speed: 0, color: 0x9b7653, speedrotation: 0.002,},
-    { name:'Mechanon',radius: 2, distance: 16, speed: 0, color: 0x3d9970, speedrotation: 0.003,},
-    { name:'Nymboria',radius: 2, distance: 20, speed: 0, color: 0xa5673f, speedrotation: 0.004,},
-    { name:'Ignis',radius: 2, distance: 26, speed: 0, color: 0xff0000, speedrotation: 0.005,},
-    { name:'Alcyon',radius: 2, distance: 30, speed: 0, color: 0x00ffff, speedrotation: 0.006,},
+    { name:'Zephyria',radius: 2, distance: 14, speed: 0, color: 0x9b7653, speedrotation: 0.002,},
+    { name:'Mechanon',radius: 2, distance: 20, speed: 0, color: 0x3d9970, speedrotation: 0.003,},
+    { name:'Nymboria',radius: 2, distance: 26, speed: 0, color: 0xa5673f, speedrotation: 0.004,},
+    { name:'Ignis',radius: 2, distance: 32, speed: 0, color: 0xff0000, speedrotation: 0.005,},
+    { name:'Alcyon',radius: 2, distance: 38, speed: 0, color: 0x00ffff, speedrotation: 0.006,},
 ];
 var sun;
 
@@ -124,7 +124,7 @@ function PlanetGeometry() {
         planet.position.z = 0;
         planet.userData = {
             distance: data.distance,
-            angle: Math.random() * Math.PI,
+            angle: Math.random() * Math.PI * 2,
             speed: data.speed,
             speedrotation: data.speedrotation,
         };
@@ -184,7 +184,6 @@ function CheckPlanetsCollisions() {
         collision = false;
         const distance = cameraPlanets.position.distanceTo(planet.position);
         if (distance < planet.geometry.parameters.radius + cameraPlanets.near + 0.2) {
-            console.log("Colisión con planeta "+ planet.name);
             LoadArrayPreguntas(planet.name);
             document.exitPointerLock();
             changeScene("sceneCuestions");
@@ -297,10 +296,8 @@ function onClick(event) {
 // Escuchar cambios en el estado del Pointer Lock
 function onPointerLockChange() {
     if (document.pointerLockElement === document.body) {
-        console.log("Pointer Lock Activado");
         document.addEventListener("mousemove", onMouseMove, false);
     } else {
-        console.log("Pointer Lock Desactivado");
         document.removeEventListener("mousemove", onMouseMove, false);
     }
 };

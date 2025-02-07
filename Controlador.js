@@ -23,7 +23,6 @@ let endActiveanimate = null;
 function changeScene(newScene){
     if(endActiveanimate != null){
         cancelAnimationFrame(endActiveanimate);
-        console.log("Se cancelo la animacion");
     }
 
     if (scene === scenePlanets) {
