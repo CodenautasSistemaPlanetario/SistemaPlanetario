@@ -9,12 +9,12 @@ var scenePlanets, cameraPlanets, renderer;
 var clock;
 const planets = [];
 const planetData = [
-    { name:'AquaTerra',radius: 2,distance: 8,speed: 0, color: 0x2194ce, speedrotation: 0.01,},
-    { name:'Zephyria',radius: 2, distance: 14, speed: 0, color: 0x9b7653, speedrotation: 0.002,},
-    { name:'Mechanon',radius: 2, distance: 20, speed: 0, color: 0x3d9970, speedrotation: 0.003,},
-    { name:'Nymboria',radius: 2, distance: 26, speed: 0, color: 0xa5673f, speedrotation: 0.004,},
-    { name:'Ignis',radius: 2, distance: 32, speed: 0, color: 0xff0000, speedrotation: 0.005,},
-    { name:'Alcyon',radius: 2, distance: 38, speed: 0, color: 0x00ffff, speedrotation: 0.006,},
+    { name:'AquaTerra',radius: 2,distance: 8,speed: 0.1, color: 0x2194ce, speedrotation: 0.01,},
+    { name:'Zephyria',radius: 2, distance: 14, speed: 0.1, color: 0x9b7653, speedrotation: 0.002,},
+    { name:'Mechanon',radius: 2, distance: 20, speed: 0.3, color: 0x3d9970, speedrotation: 0.003,},
+    { name:'Nymboria',radius: 2, distance: 26, speed: 0.2, color: 0xa5673f, speedrotation: 0.004,},
+    { name:'Ignis',radius: 2, distance: 32, speed: 0.09, color: 0xff0000, speedrotation: 0.005,},
+    { name:'Alcyon',radius: 2, distance: 38, speed: 0.1, color: 0x00ffff, speedrotation: 0.006,},
 ];
 var sun;
 
@@ -32,6 +32,12 @@ var collision = false;
 
 
 let alreadyplayed = false;
+
+const num_Stars = 3000;
+
+const TexturePath = "./img/Planets/";
+
+var worldPos = new THREE.Vector3();
 
 CreateScenePlanets();
 addEventsPlanets();
@@ -85,7 +91,7 @@ function light() {
 function StarsGeometry() {
     const starGeometry = new THREE.BufferGeometry();
     const starVertices = [];
-    for (let i = 0; i < 6000; i++) {
+    for (let i = 0; i < num_Stars; i++) {
         starVertices.push((Math.random() - 0.5) * 2000);
         starVertices.push((Math.random() - 0.5) * 2000);
         starVertices.push((Math.random() - 0.5) * 2000);
@@ -112,12 +118,13 @@ function PlanetGeometry() {
     planetData.forEach((data) => {
         const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
         const planettexture = loadertexture.load(
-            "./img/earthmap4k.jpg"
+            TexturePath + data.name + ".jpg"
         );
         planettexture.wrapS = THREE.RepeatWrapping;
         planettexture.wrapT = THREE.RepeatWrapping;
         planettexture.repeat.set(1, 1);
-        const material = new THREE.MeshPhongMaterial({ map: planettexture });
+        // const material = new THREE.MeshPhongMaterial({ map: planettexture });
+        const material = new THREE.MeshBasicMaterial({color:data.color} );
         const planet = new THREE.Mesh(geometry, material);
         planet.position.x = data.distance;
         planet.position.y = 0;
@@ -141,24 +148,27 @@ function animateScenePlanets() {
         rebootScene();
     }
 
+    const dt = clock.getDelta();
+    
     //Planet Movement
     planets.forEach((planet) => {
-        planet.userData.angle += planet.userData.speed;
+        planet.userData.angle += planet.userData.speed * dt;
         planet.position.x =
-            planet.userData.distance * Math.cos(planet.userData.angle);
+            planet.userData.distance + Math.cos(planet.userData.angle);
         planet.position.z =
-            planet.userData.distance * Math.sin(planet.userData.angle);
+            planet.userData.distance + Math.sin(planet.userData.angle);
         planet.rotation.y += planet.userData.speedrotation;
     });
 
     
     //Camera Movement
-    const dt = clock.getDelta();
+    
   
     cameraPlanets.updateProjectionMatrix();
     
     cameraPlanets.getWorldDirection(camforward);
     camright.crossVectors(cameraPlanets.up, camforward).normalize();
+
     
     if(!collision){
         if (forward!=0) {
@@ -169,9 +179,14 @@ function animateScenePlanets() {
         }
     }   
 
+
+    planets.forEach((planet) => planet.updateMatrixWorld(true));
+    cameraPlanets.updateMatrixWorld(true);
+
     // Colisiones
     CheckPlanetsCollisions();
     CheckSunCollision();
+    
 
 
     renderer.render(scenePlanets, cameraPlanets);
@@ -179,11 +194,24 @@ function animateScenePlanets() {
 
 //Collisions
 function CheckPlanetsCollisions() {
+
+
     //Check planet collisions
     planets.forEach((planet) => {
-        collision = false;
-        const distance = cameraPlanets.position.distanceTo(planet.position);
+        
+        const planetWorldPos = new THREE.Vector3();
+        planet.getWorldPosition(planetWorldPos);
+
+        const cameraWorldPos = new THREE.Vector3();
+        cameraPlanets.getWorldPosition(cameraWorldPos);
+        const distance = cameraWorldPos.distanceTo(planetWorldPos);
+
+        console.log(planet.name);
+        console.log(planetWorldPos);
+        console.log(cameraPlanets.position);
+        console.log(distance);
         if (distance < planet.geometry.parameters.radius + cameraPlanets.near + 0.2) {
+            console.log("Colision");
             LoadArrayPreguntas(planet.name);
             document.exitPointerLock();
             changeScene("sceneCuestions");

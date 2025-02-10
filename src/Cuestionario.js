@@ -25,7 +25,7 @@ var QuizElements = [];
 
 //Configuración visual del cuestionario
 const basicPath = './img/';
-const FontName = './font/Gowun Batang_Regular.json';
+const FontName = './font/ArcaneNine_Regular.json';
 const FontColor = 0x000000;
 const FontSize = 0.3;
 const FontHeight = 0.05;

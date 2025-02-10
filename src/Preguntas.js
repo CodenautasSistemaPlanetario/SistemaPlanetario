@@ -49,16 +49,16 @@ const Preguntas_Zephyria =[
 
 //Preguntas de Ignis
 const Preguntas_Ignis =[
-    ['Ignis',['Pulparians','Aquarians','Tiburonions','Pecerians'],1],
-    ['Los Aquarians',['Son seres anfibios adaptados a la vida marina','Son mitad pulpo mitad robot','Son humanos que siempre van en bañador','Son microorganismos como algas'],0],
-    ['Los Aquarians es una sociedad basada en la cooperación y la conservación del medio ambiente marino.',['Verdadero','Falso'],0],
-    ['La temperatura de Aquaterra ronda los...',['0 grados Celsius','100 grados Celsius','-10 grados Celsius','25 grados Celsius'],3],
-    ['En los arrecifes de coral de Aquaterra podemos encontrar...',['una increíble variedad de especies marinas','Barcos hundidos','Piratas y tesoros','Pulpos parlantes'],1],
-    ['La atmosfera de Aquaterra esta compuesta de oxígeno y nitrógeno, similar a la tierra',['Verdadero','Falso'],0],
-    ['En el abismo profundo podemos descubrir...',['tesoros hundidos','a los Aquarians','algas','criaturas extrañas que han evolucionado para sobrevivir en la oscuridad'],3],
-    ['La ciudad submarina es...',['una metrópolis futurista construida en las profundidades del océano','el hogar de las ballenas','el lugar donde viven las medusas','una ciudad abandonada'],0],
-    ['En la cueva de los secretos...',['viven los Aquarians','puedes descubrir antiguos enigmas','se esconden los grandes cetáceos','encuentras a los más sabios de los Aquarians'],1],
-    ['En el santuario de los cetáceos',['viven la mayoría de las grandes ballenas de Aquaterra','viven las medusas de colores','hace mucho frío','se escuchan cantos de sirena'],0]
+    ['¿Qué tipo de mundo es Ignis?',['Un mundo lleno de selvas tropicales','Un planeta volcánico con ríos de lava y montañas de fuego.','Un planeta gaseoso','Un mundo con grandes océanos'],1],
+    ['Los Ignis es un mundo extremadamente caliente, con temperaturas que superan los...',['900 grados en algunas regiones','2000 grados en todo el planeta','1500 grados en algunas regiones','Todas son correctas'],0],
+    ['Ignis es un planeta poco peligroso',['Verdadero','Falso'],1],
+    ['Uno de los gases que componen la atmósfera de Ignis es...',['El dióxido de azufre','El vapor de agua','El dióxido de carbono','Todas son correctas'],3],
+    ['En Ignis algunas criaturas tienen la capacidad de...',['Metabolizar los gases tóxicos para sobrevivir','Volar muy alto','Comer magma','sumergirse en la lava'],0],
+    ['En Ignis existen reptiles capaces de caminar sobre la lava',['Verdadero','Falso'],0],
+    ['La ciudad en llamas...',['tiene una temperatura de 2000 grado','está dentro de un volcán','tiene zonas con manantiales para facilitar la vida de sus habitantes.','está deshabitada'],2],
+    ['En Ignis existen criaturas adaptadas para entornos corrosivos en...',['El lago de azufre','El pico de la eternidad','El desierto de escoria','La ciudad en llamas'],0],
+    ['En el desierto de escoria los exploradores pueden buscan restos de antiguas civilizaciones',['Verdadero','Falso'],0],
+    ['El pico de la eternidad...',['es el hogar de los ignarians','es un valle con ríos de lava','es un mar de lava','es la cumbre más alta de Ignis'],1]
 ];
 
 
