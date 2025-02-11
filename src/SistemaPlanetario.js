@@ -9,12 +9,12 @@ var scenePlanets, cameraPlanets, renderer;
 var clock;
 const planets = [];
 const planetData = [
-    { name:'AquaTerra',radius: 2,distance: 8,speed: 0.1, color: 0x2194ce, speedrotation: 0.01,},
-    { name:'Zephyria',radius: 2, distance: 14, speed: 0.1, color: 0x9b7653, speedrotation: 0.002,},
-    { name:'Mechanon',radius: 2, distance: 20, speed: 0.3, color: 0x3d9970, speedrotation: 0.003,},
-    { name:'Nymboria',radius: 2, distance: 26, speed: 0.2, color: 0xa5673f, speedrotation: 0.004,},
-    { name:'Ignis',radius: 2, distance: 32, speed: 0.09, color: 0xff0000, speedrotation: 0.005,},
-    { name:'Alcyon',radius: 2, distance: 38, speed: 0.1, color: 0x00ffff, speedrotation: 0.006,},
+    { name:'AquaTerra',radius: 2,distance: 8,speed:0.12,  color: 0x2194ce, speedrotation: 0.5026,},//50 seg
+    { name:'Zephyria',radius: 2, distance: 14, speed: 0.0739, color: 0x9b7653, speedrotation: 0.2957,},//1:25min
+    { name:'Mechanon',radius: 2, distance: 20, speed: 0.0502, color: 0x3d9970, speedrotation: 0.201,},// 2:05min
+    { name:'Nymboria',radius: 2, distance: 26, speed: 0.0374, color: 0xa5673f, speedrotation: 0.1496,}, // 2:48 mins
+    { name:'Ignis',radius: 2, distance: 32, speed: 0.0292, color: 0xff0000, speedrotation: 0.1169,},//3:35 mins
+    { name:'Alcyon',radius: 2, distance: 38, speed: 0.0246, color: 0x00ffff, speedrotation: 0.1117,},//4:15mins
 ];
 var sun;
 
@@ -39,7 +39,9 @@ const TexturePath = "./img/Planets/";
 
 var worldPos = new THREE.Vector3();
 
-CreateScenePlanets();
+let checkedThisFrame = false;
+
+
 addEventsPlanets();
 function CreateScenePlanets(globalrenderer) {
     //Clock
@@ -108,7 +110,14 @@ function StarsGeometry() {
 // Sol
 function SunGeometry() {
     const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
-    const sunMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+    const sunTexture = loadertexture.load('./img/Sun.jpg' );  
+    sunTexture.mapping = THREE.EquirectangularReflectionMapping;
+    const sunMaterial = new THREE.MeshBasicMaterial({
+        map: sunTexture,        // Aplicar la textura
+        emissive: new THREE.Color(0xFFFF00), // Color de emisión (puedes ajustarlo)
+        emissiveIntensity: 1,    // Intensidad de la luz emitida
+        toneMapped: false        // Evitar que se haga corrección de tono (si la textura tiene alta intensidad)
+    });
     const sunMesh = new THREE.Mesh(sunGeometry, sunMaterial);
     sun = sunMesh;
     scenePlanets.add(sunMesh);
@@ -119,45 +128,51 @@ function PlanetGeometry() {
         const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
         const planettexture = loadertexture.load(
             TexturePath + data.name + ".jpg"
-        );
-        planettexture.wrapS = THREE.RepeatWrapping;
-        planettexture.wrapT = THREE.RepeatWrapping;
-        planettexture.repeat.set(1, 1);
-        // const material = new THREE.MeshPhongMaterial({ map: planettexture });
-        const material = new THREE.MeshBasicMaterial({color:data.color} );
+        );  
+        planettexture.mapping = THREE.EquirectangularReflectionMapping;
+        const material = new THREE.MeshStandardMaterial({ map: planettexture });
         const planet = new THREE.Mesh(geometry, material);
-        planet.position.x = data.distance;
-        planet.position.y = 0;
-        planet.position.z = 0;
+        const angle = Math.random() * Math.PI * 2;
+        const initialX = data.distance * Math.cos(angle);
+        const initialZ = data.distance * Math.sin(angle);
+        planet.position.set(initialX, 0, initialZ);
         planet.userData = {
             distance: data.distance,
-            angle: Math.random() * Math.PI * 2,
+            angle: angle,
             speed: data.speed,
             speedrotation: data.speedrotation,
+            initialX: initialX,  // Guardamos la posición inicial
+            initialZ: initialZ
         };
         planet.name = data.name;
         scenePlanets.add(planet);
         planets.push(planet);
     });
+
 }
 
 // Animación
 function animateScenePlanets() {
+    
+
     if(alreadyplayed){
         alreadyplayed = false;
         rebootScene();
     }
 
     const dt = clock.getDelta();
+
+    const elapsedTime = clock.getElapsedTime();
+
     
     //Planet Movement
     planets.forEach((planet) => {
-        planet.userData.angle += planet.userData.speed * dt;
-        planet.position.x =
-            planet.userData.distance + Math.cos(planet.userData.angle);
-        planet.position.z =
-            planet.userData.distance + Math.sin(planet.userData.angle);
-        planet.rotation.y += planet.userData.speedrotation;
+        planet.userData.angle += dt * planet.userData.speed;
+        planet.position.x = planet.userData.distance * Math.cos(planet.userData.angle);
+        planet.position.z = planet.userData.distance * Math.sin(planet.userData.angle);
+
+
+        planet.rotation.y += dt* planet.userData.speedrotation;
     });
 
     
@@ -183,6 +198,7 @@ function animateScenePlanets() {
     planets.forEach((planet) => planet.updateMatrixWorld(true));
     cameraPlanets.updateMatrixWorld(true);
 
+    checkedThisFrame = false;
     // Colisiones
     CheckPlanetsCollisions();
     CheckSunCollision();
@@ -195,6 +211,12 @@ function animateScenePlanets() {
 //Collisions
 function CheckPlanetsCollisions() {
 
+    if(checkedThisFrame){
+        console.log("Already checked this frame");
+        return;
+    }
+    checkedThisFrame = true;
+
 
     //Check planet collisions
     planets.forEach((planet) => {
@@ -206,12 +228,7 @@ function CheckPlanetsCollisions() {
         cameraPlanets.getWorldPosition(cameraWorldPos);
         const distance = cameraWorldPos.distanceTo(planetWorldPos);
 
-        console.log(planet.name);
-        console.log(planetWorldPos);
-        console.log(cameraPlanets.position);
-        console.log(distance);
-        if (distance < planet.geometry.parameters.radius + cameraPlanets.near + 0.2) {
-            console.log("Colision");
+        if (distance < planet.geometry.parameters.radius + cameraPlanets.near +.2) {
             LoadArrayPreguntas(planet.name);
             document.exitPointerLock();
             changeScene("sceneCuestions");

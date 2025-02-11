@@ -42,7 +42,10 @@ function changeScene(newScene){
         Activeanimate = animateSceneCuestions;
         addEventsCuestions();
     }
-   Animate();
+   
+   if (Activeanimate) {
+    Animate();
+   }
 }
 
 function Animate(){
