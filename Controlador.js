@@ -1,16 +1,18 @@
 import * as THREE from "three";
 import {CreateScenePlanets, animateScenePlanets,addEventsPlanets,removeEventsPlanets }from "./src/SistemaPlanetario.js";
 import { CreateSceneCuestions, animateSceneCuestions,addEventsCuestions,removeEventsCuestions }from "./src/Cuestionario.js";
+import{CreateSceneLuna,animateSceneLunas,addEventsLuna,removeEventsLuna} from "./src/Luna.js";
 
-//Renderer 
+//Renderer
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
 
 //Variable Value
-let sceneCuestions, cameraCuestions,scenePlanets,cameraPlanets;
+let sceneCuestions, cameraCuestions,scenePlanets,cameraPlanets,sceneLuna,cameraLuna;
 [sceneCuestions,cameraCuestions]= CreateSceneCuestions(renderer);
 [scenePlanets,cameraPlanets]= CreateScenePlanets(renderer);
+[sceneLuna,cameraLuna]= CreateSceneLuna(renderer);
 
 
 //Active Variables
@@ -29,6 +31,8 @@ function changeScene(newScene){
         removeEventsPlanets();
     } else if (scene === sceneCuestions) {
         removeEventsCuestions();
+    } else if (scene === sceneLuna) {
+        removeEventsLuna();
     }
 
     if(newScene == "scenePlanets"){
@@ -41,6 +45,11 @@ function changeScene(newScene){
         camera = cameraCuestions;
         Activeanimate = animateSceneCuestions;
         addEventsCuestions();
+    } else if(newScene == "sceneLuna"){
+        scene = sceneLuna;
+        camera = cameraLuna;
+        Activeanimate = animateSceneLunas;
+        addEventsLuna();
     }
    
    if (Activeanimate) {
