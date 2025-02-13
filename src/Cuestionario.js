@@ -26,19 +26,27 @@ var QuizElements = [];
 //Configuración visual del cuestionario
 const basicPath = './img/';
 const FontName = './font/ArcaneNine_Regular.json';
-const FontColor = 0x000000;
-const FontSize = 0.3;
-const FontHeight = 0.05;
-const FontCurveSegments = 12;
-const FontDepth = 0.05;
-const ButtonColor = 0x00ff00;
+//Parametros letras Preguntas
+const FontColorCuestions = 0xEBEBD3;
+const FontSizeCuestions = 0.3;
+const FontHeightCuestions = 0.05;
+const FontCurveSegmentsCuestions = 12;
+const FontDepthCuestions = 0.03;
+//Paremtros letras respuestas
+const FontColorAnswers = 0xffffff;
+const FontSizeAnswers = 0.2;
+const FontHeightAnswers = 0.02;
+const FontCurveSegmentsAnswers = 12;
+const FontDepthAnswers = 0.02;
+var ButtonColorAnswers = 0x007BFF;
 
 function CreateSceneCuestions(globalrenderer){
 
     //Configuración elementos de la escena
     sceneCuestions = new THREE.Scene();
     cameraCuestions = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 2, 1000);
-    cameraCuestions.position.z = 5;
+    cameraCuestions.position.z = -5;
+    cameraCuestions.rotateY(Math.PI);
 
     renderer = globalrenderer;
     
@@ -48,20 +56,19 @@ function CreateSceneCuestions(globalrenderer){
 
     
 
-    //Configuración de la luz
-    //light();
-
-    
-
     return [sceneCuestions,cameraCuestions];
 }
 
 
 function CrearSkysphere(){  
     const texture = TextureLoader.load([
-        'px.png', 'nx.png', 
-        'py.png', 'ny.png', 
-        'pz.png', 'nz.png']);
+        'px.png', // Positivo en X (derecha)
+        'nx.png', // Negativo en X (izquierda)
+        'py.png', // Positivo en Y (arriba)
+        'ny.png', // Negativo en Y (abajo)
+        'pz.png', // Positivo en Z (frente)
+        'nz.png'  // Negativo en Z (atrás)
+    ]);
 
         sceneCuestions.background = texture;
 }
@@ -70,20 +77,21 @@ function CreatePregunta(cuestion){
     Fontloader.load(FontName, function (font) {
         const textGeometry = new TextGeometry(cuestion, {
             font: font,
-            size: FontSize,
-            height: FontHeight,
-            curveSegments: FontCurveSegments,
-            depth: FontDepth,
+            size: FontSizeCuestions,
+            height: FontHeightCuestions,
+            curveSegments: FontCurveSegmentsCuestions,
+            depth: FontDepthCuestions,
             bevelEnabled: false   
         }, undefined, undefined, { generateMipmaps: false });
     
         textGeometry.computeBoundingBox();
         textGeometry.center();
 
-        const textMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorCuestions });
     
         var textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.set(0, 2, 0 );
+        textMesh.rotation.y = Math.PI;
         
         sceneCuestions.add( textMesh );
         QuizElements.push(textMesh);
@@ -94,10 +102,11 @@ function CreatePregunta(cuestion){
 function CreateRespuestas(options){
     options.forEach((option, index) => {
         const geometry = new THREE.BoxGeometry(10, 0.5, 0.1);
-        const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        const material = new THREE.MeshBasicMaterial({ color: ButtonColorAnswers });
         const button = new THREE.Mesh(geometry, material);
         
         button.position.set( 0,1-index, 0);
+        button.rotation.y = Math.PI;
         button.userData = { index }; // Guardar el índice de la opción
         sceneCuestions.add(button);
         QuizElements.push(button);
@@ -106,17 +115,20 @@ function CreateRespuestas(options){
         Fontloader.load(FontName, function (font) {
             const textGeometry = new TextGeometry(option, {
                 font: font,
-                size: 0.2,
-                height: 0.02,
-                depth: 0.02,
+                size: FontSizeAnswers, 
+                height: FontHeightAnswers,
+                depth: FontDepthAnswers,
+                curveSegments: FontCurveSegmentsAnswers,
+                bevelEnabled: false
             });
     
             textGeometry.computeBoundingBox();
             textGeometry.center(); // Centrar texto correctamente
     
-            const textMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+            const textMaterial = new THREE.MeshBasicMaterial({ color:FontColorAnswers });
             const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-            textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06);
+            textMesh.position.set(button.position.x, button.position.y, button.position.z - 0.06);
+            textMesh.rotation.y = Math.PI;
             QuizElements.push(textMesh);
             sceneCuestions.add(textMesh);
         });
@@ -138,6 +150,7 @@ function CargarResultado(){
         sceneCuestions.remove(element);
     });
 
+    // Mostrar puntuación
     Fontloader.load(FontName, function (font) {
         const textGeometry = new TextGeometry('Tu puntuación es: ' + points, {
             font: font,
@@ -151,25 +164,27 @@ function CargarResultado(){
         textGeometry.computeBoundingBox();
         textGeometry.center();
 
-        const textMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorAnswers });
     
         var textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.set(0, 1, 0 );
+        textMesh.rotation.y = Math.PI;
         
         sceneCuestions.add( textMesh );
         QuizElements.push(textMesh);
     
     });
     
-
+    // Botón para volver a la escena de los planetas
     const geometry = new THREE.BoxGeometry(6, -1, 0.1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    const material = new THREE.MeshBasicMaterial({ color: ButtonColorAnswers });
     const button = new THREE.Mesh(geometry, material);
     button.position.set( 0,-2, 0);
+    button.rotation.y = Math.PI;
     button.userData = { index: 4 }; // Guardar el índice de la opción    
     QuizElements.push(button);
 
-
+    // Texto del botón
     Fontloader.load(FontName, function (font) {
         const textGeometry = new TextGeometry("Volver a nebuloide", {
             font: font,
@@ -183,10 +198,11 @@ function CargarResultado(){
         textGeometry.computeBoundingBox();
         textGeometry.center();
 
-        const textMaterial = new THREE.MeshBasicMaterial({ color: 0x000000 });
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorAnswers });
     
         var textMesh = new THREE.Mesh( textGeometry, textMaterial );
         textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06);
+        textMesh.rotation.y = Math.PI;
         
         sceneCuestions.add( textMesh );
         
@@ -201,25 +217,38 @@ function CargarResultado(){
 }
 
 function LoadArrayPreguntas(planetname){
-    console.log("El nombre del planeta es: " + planetname);
+    let path = basicPath;
+
     switch(planetname){
         case "AquaTerra":
             Preguntas = Preguntas_AquaTerra;
+            path += "AquaTerra/";
+            ButtonColorAnswers = 0X4A90E2;
             break;
         case "Zephyria":
             Preguntas = Preguntas_Zephyria;
+            path += "Zephyria/";
+            ButtonColorAnswers = 0x28A745;
             break;
         case "Nymboria":
             Preguntas = Preguntas_Nymboria;
+            path += "Nymboria/";
+            ButtonColorAnswers =0x007BFF;
             break;
         case "Mechanon":
             Preguntas = Preguntas_Mechanon;
+            path += "Mechanon/";
+            ButtonColorAnswers = 0xFFA500;
             break;
         case "Ignis":
             Preguntas = Preguntas_Ignis;
+            path += "Ignis/";
+            ButtonColorAnswers = 0xE63946;
             break;
         case "Alcyon":
             Preguntas = Preguntas_Alcyon;
+            path += "Alcyon/";
+            ButtonColorAnswers = 0x6F42C1;
             break;
     }
     
@@ -232,7 +261,7 @@ function LoadArrayPreguntas(planetname){
     } else {
         CargarPregunta();
     }
-    TextureLoader.setPath(basicPath);
+    TextureLoader.setPath(path);
     CrearSkysphere();
 }
 

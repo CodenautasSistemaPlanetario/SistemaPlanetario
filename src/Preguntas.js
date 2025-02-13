@@ -79,16 +79,16 @@ const Preguntas_Mechanon =[
 
 //Preguntas de Nymboria
 const Preguntas_Nymboria =[
-    ['Nymboria',['Pulparians','Aquarians','Tiburonions','Pecerians'],1],
-    ['Los Aquarians',['Son seres anfibios adaptados a la vida marina','Son mitad pulpo mitad robot','Son humanos que siempre van en bañador','Son microorganismos como algas'],0],
-    ['Los Aquarians es una sociedad basada en la cooperación y la conservación del medio ambiente marino.',['Verdadero','Falso'],0],
-    ['La temperatura de Aquaterra ronda los...',['0 grados Celsius','100 grados Celsius','-10 grados Celsius','25 grados Celsius'],3],
-    ['En los arrecifes de coral de Aquaterra podemos encontrar...',['una increíble variedad de especies marinas','Barcos hundidos','Piratas y tesoros','Pulpos parlantes'],1],
-    ['La atmosfera de Aquaterra esta compuesta de oxígeno y nitrógeno, similar a la tierra',['Verdadero','Falso'],0],
-    ['En el abismo profundo podemos descubrir...',['tesoros hundidos','a los Aquarians','algas','criaturas extrañas que han evolucionado para sobrevivir en la oscuridad'],3],
-    ['La ciudad submarina es...',['una metrópolis futurista construida en las profundidades del océano','el hogar de las ballenas','el lugar donde viven las medusas','una ciudad abandonada'],0],
-    ['En la cueva de los secretos...',['viven los Aquarians','puedes descubrir antiguos enigmas','se esconden los grandes cetáceos','encuentras a los más sabios de los Aquarians'],1],
-    ['En el santuario de los cetáceos',['viven la mayoría de las grandes ballenas de Aquaterra','viven las medusas de colores','hace mucho frío','se escuchan cantos de sirena'],0]
+    ['¿Cómo se llaman los habitantes de Nymboria?',['Los Nymborians','Los Nythar','Los Nythares','Los Nythis'],1],
+    ['Los Nythar son...',['Son seres hechos de gas','mitad esqueleto y mitad humano','Seres altos y esbeltos, con la piel traslúcida','Humanos fluorescentes'],2],
+    ['Los Nythar son una raza ancestral adaptada a la neblina constante y a los entornos hostiles',['Verdadero','Falso'],0],
+    ['La temperatura durante el dia de Nymboria ronda los...',['45 grados celsius en las zonas mas calurosas y -10 en las mas frias','30 grados celsius en las zonas mas calurosas y -10 en las mas frias','45 grados celsius en las zonas mas calurosas y 35 en las mas frias','45 grados celsius en las zonas mas calurosas y 25 en las mas frias'],3],
+    ['En la jungla de sombras de Nymboria podemos encontrar...',['gas nyxon','árboles carnivoros','lianas bioluminiscentes','Hongos parlantes'],1],
+    ['La presión atmosférica en Nymboria es 0.9 la presión atmosférica terrestre',['Verdadero','Falso'],0],
+    ['En la cordillera del eco podemos encontrar...',['tesoros entre las montañas','volcanes que emiten gas nyxon','islas flotantes','restos de templos antiguos'],3],
+    ['El abismo de nyxon es...',['donde el gas fluorescente nyxon se acumula','el hogar de los hongos bioluminiscentes','donde tenemos que tener cuidado con las ilusiones ópticas','una ciudad abandonada'],0],
+    ['Aunque Nymboria es hermoso, también presenta numerosos peligros, como...',['gases tóxicos que imposibilitan la respiración','hongos venenosos','mounstros de gas','Esqueletos gigantes'],1],
+    ['Los Nythar se comunican gracias a un lenguaje basado en vibraciones y ecos',['Verdadero','Falso'],0]
 ];
 
 export {Preguntas_AquaTerra,Preguntas_Alcyon,Preguntas_Zephyria,Preguntas_Ignis,Preguntas_Mechanon,Preguntas_Nymboria};

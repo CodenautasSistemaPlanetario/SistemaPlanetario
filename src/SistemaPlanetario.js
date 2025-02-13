@@ -10,13 +10,20 @@ var clock;
 const planets = [];
 const planetData = [
     { name:'AquaTerra',radius: 2,distance: 8,speed:0.12,  color: 0x2194ce, speedrotation: 0.5026,},//50 seg
-    { name:'Zephyria',radius: 2, distance: 14, speed: 0.0739, color: 0x9b7653, speedrotation: 0.2957,},//1:25min
-    { name:'Mechanon',radius: 2, distance: 20, speed: 0.0502, color: 0x3d9970, speedrotation: 0.201,},// 2:05min
-    { name:'Nymboria',radius: 2, distance: 26, speed: 0.0374, color: 0xa5673f, speedrotation: 0.1496,}, // 2:48 mins
-    { name:'Ignis',radius: 2, distance: 32, speed: 0.0292, color: 0xff0000, speedrotation: 0.1169,},//3:35 mins
-    { name:'Alcyon',radius: 2, distance: 38, speed: 0.0246, color: 0x00ffff, speedrotation: 0.1117,},//4:15mins
+    { name:'Zephyria',radius: 2, distance: 16, speed: 0.0739, color: 0x9b7653, speedrotation: 0.2957,},//1:25min
+    { name:'Mechanon',radius: 2, distance: 22, speed: 0.0502, color: 0x3d9970, speedrotation: 0.201,},// 2:05min
+    { name:'Nymboria',radius: 2, distance: 31, speed: 0.0374, color: 0xa5673f, speedrotation: 0.1496,}, // 2:48 mins
+    { name:'Ignis',radius: 2, distance: 37, speed: 0.0292, color: 0xff0000, speedrotation: 0.1169,},//3:35 mins
+    { name:'Alcyon',radius: 2, distance: 48, speed: 0.0246, color: 0x00ffff, speedrotation: 0.1117,},//4:15mins
 ];
 var sun;
+
+const moons = [];
+const moonData = [
+    { name:'Luna', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
+    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
+    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
+];
 
 
 //Movimiento de la cámara
@@ -74,6 +81,7 @@ function CreateScenePlanets(globalrenderer) {
     StarsGeometry();
     SunGeometry();
     PlanetGeometry();
+    MoonGeometry();
     //Iluminación
     light();
 
@@ -151,6 +159,41 @@ function PlanetGeometry() {
 
 }
 
+function MoonGeometry() {
+    moonData.forEach((data) => {
+        console.log(planets.map(p => p.name))
+        const parentPlanet = planets.find(p => p.name === data.namePlanet);
+        if (!parentPlanet) return; // Si no hay planeta con ese nombre, continuar
+
+        const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
+        const material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+        const moon = new THREE.Mesh(geometry, material);
+
+        moon.name = data.name;
+        // Posición inicial relativa al planeta
+        const angle = Math.random() * Math.PI * 2;
+        console.log(parentPlanet.position);
+        moon.position.set(
+            parentPlanet.position.x + data.distance * Math.cos(angle),
+            0,
+            parentPlanet.position.z + data.distance * Math.sin(angle)
+        );
+
+        moon.userData = {
+            parent: parentPlanet,
+            distance: data.distance,
+            angle: angle,
+            speed: data.speed,
+            speedrotation: data.speedrotation,
+        };
+
+        scenePlanets.add(moon);
+        moons.push(moon);
+        console.log(moon);
+
+    });
+}
+
 // Animación
 function animateScenePlanets() {
     
@@ -173,6 +216,19 @@ function animateScenePlanets() {
 
 
         planet.rotation.y += dt* planet.userData.speedrotation;
+    });
+
+    //Moon Movement
+    moons.forEach((moon) => {
+        const dt = clock.getDelta();
+        moon.userData.angle += dt * moon.userData.speed;
+    
+        const parent = moon.userData.parent;
+        
+
+        moon.position.x = parent.position.x + moon.userData.distance * Math.cos(moon.userData.angle);
+        moon.position.z = parent.position.z + moon.userData.distance * Math.sin(moon.userData.angle);
+        moon.rotation.y += dt * moon.userData.speedrotation;
     });
 
     
@@ -202,6 +258,7 @@ function animateScenePlanets() {
     // Colisiones
     CheckPlanetsCollisions();
     CheckSunCollision();
+    CheckMoonCollision();
     
 
 
@@ -245,6 +302,22 @@ function CheckSunCollision(){
         cameraPlanets.position.lerp(newpos, dt * camCollisionSensitive);
         collision = true;
     }
+}
+
+function CheckMoonCollision(){
+    moons.forEach((moon) => {
+        const moonWorldPos = new THREE.Vector3();
+        moon.getWorldPosition(moonWorldPos);
+
+        const cameraWorldPos = new THREE.Vector3();
+        cameraPlanets.getWorldPosition(cameraWorldPos);
+        const distance = cameraWorldPos.distanceTo(moonWorldPos);
+
+        if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
+            changeScene("sceneLuna");
+            document.exitPointerLock();
+        }
+    });
 }
 
 //reboot the escene
