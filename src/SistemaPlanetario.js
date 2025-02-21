@@ -20,15 +20,15 @@ var sun;
 
 const moons = [];
 const moonData = [
-    { name:'Luna', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
-    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
-    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed: 0.99, speedrotation: 0.5,},
+    { name:'Luna', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
+    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
+    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed:4 , speedrotation: 0.5,},
 ];
 
 
 //Movimiento de la cámara
 var camforward, camright;
-var camspeed = 2;
+var camspeed = 4;
 var forward = 0;
 var right = 0;
 var rotsensitivity = 0.001;
@@ -166,7 +166,10 @@ function MoonGeometry() {
         if (!parentPlanet) return; // Si no hay planeta con ese nombre, continuar
 
         const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
-        const material = new THREE.MeshStandardMaterial({ color: 0xaaaaaa });
+        const moontexture = loadertexture.load(
+            TexturePath + "Luna" + ".jpg"
+        );  
+        const material = new THREE.MeshStandardMaterial({ map: moontexture });
         const moon = new THREE.Mesh(geometry, material);
 
         moon.name = data.name;
@@ -211,23 +214,22 @@ function animateScenePlanets() {
     //Planet Movement
     planets.forEach((planet) => {
         planet.userData.angle += dt * planet.userData.speed;
-        planet.position.x = planet.userData.distance * Math.cos(planet.userData.angle);
-        planet.position.z = planet.userData.distance * Math.sin(planet.userData.angle);
+        planet.position.x = planet.userData.distance * Math.sin(planet.userData.angle);
+        planet.position.z = planet.userData.distance * Math.cos(planet.userData.angle);
 
 
-        planet.rotation.y += dt* planet.userData.speedrotation;
+        planet.rotation.y -= dt* planet.userData.speedrotation;
     });
 
     //Moon Movement
     moons.forEach((moon) => {
-        const dt = clock.getDelta();
         moon.userData.angle += dt * moon.userData.speed;
     
         const parent = moon.userData.parent;
         
 
-        moon.position.x = parent.position.x + moon.userData.distance * Math.cos(moon.userData.angle);
-        moon.position.z = parent.position.z + moon.userData.distance * Math.sin(moon.userData.angle);
+        moon.position.x = parent.position.x + moon.userData.distance * Math.sin(-moon.userData.angle);
+        moon.position.z = parent.position.z + moon.userData.distance * Math.cos(-moon.userData.angle);
         moon.rotation.y += dt * moon.userData.speedrotation;
     });
 
