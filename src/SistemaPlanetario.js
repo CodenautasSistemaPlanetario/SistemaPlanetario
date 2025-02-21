@@ -316,7 +316,7 @@ function CheckMoonCollision(){
         const distance = cameraWorldPos.distanceTo(moonWorldPos);
 
         if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
-            changeScene("sceneLuna");
+            changeScene("scenePhobos");
             document.exitPointerLock();
         }
     });

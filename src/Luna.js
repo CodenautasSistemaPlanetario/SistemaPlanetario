@@ -339,7 +339,6 @@ function CheckBordes(){
     }
 }
 
-
 function CheckLlegadaZonas(){
     if(!collision){
         ZonasJugables.forEach((zona,index) => {
@@ -353,6 +352,7 @@ function CheckLlegadaZonas(){
     }
 
 }
+
 
 
 function CargarZonas(index){
@@ -505,8 +505,10 @@ function CargarZona0(index){
     window.addEventListener("click", onClickOpciones);
 }
 
+
 //Zona 1
 function CreaZona1(){
+    clearZone(Zona1);
 
     canvas_Zona1.width = 1024;
     canvas_Zona1.height = 512;
@@ -546,6 +548,8 @@ function CreaZona1(){
 
 //Zona 2
 function CrearZona2(){
+    clearZone(Zona2);
+
     canvas_Zona2.width = 1024;
     canvas_Zona2.height = 512;
 
@@ -584,6 +588,8 @@ function CrearZona2(){
 
 //Zona 3
 function CrearZona3(){
+    clearZone(Zona3);
+
     canvas_Zona3.width = 1024;
     canvas_Zona3.height = 512;
 
@@ -623,6 +629,8 @@ function CrearZona3(){
 
 //Zona 4
 function CrearZona4(){
+    clearZone(Zona4);
+
     canvas_Zona4.width = 1024;
     canvas_Zona4.height = 512;
 
@@ -661,6 +669,8 @@ function CrearZona4(){
 
 //Zona 5
 function CrearZona5(){  
+    clearZone(Zona5);
+
     canvas_Zona5.width = 1024;
     canvas_Zona5.height = 512;
 
@@ -695,6 +705,17 @@ function CrearZona5(){
     Zona5.children[0].getWorldPosition(pos_global);
     cameraLuna.lookAt(pos_global);
     sceneLuna.add(Zona5);
+}
+
+function clearZone(zone) {
+    for (let i = zone.children.length - 1; i >= 0; i--) {
+        let obj = zone.children[i];
+        if (obj.isMesh) {
+            zone.remove(obj);
+            obj.geometry.dispose();
+            obj.material.dispose();
+        }
+    }
 }
 
 function DividirLineas(ctx, text, x, y, maxWidth, lineHeight) {

@@ -4,7 +4,7 @@ import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/
 import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
 
 //Texturas
-const path = "./img/Stars/";
+const Starspath = "./img/Stars/";
 const TextureCubeLoader = new THREE.CubeTextureLoader();
 const TextureLoader = new THREE.TextureLoader();
 const Fontloader = new FontLoader();
@@ -48,8 +48,10 @@ const Zona3 = new THREE.Group();
 const Zona4 = new THREE.Group();
 const Zona5 = new THREE.Group();
 
-const Zone_box_color = 0x00ff00;
+const Zone_box_color = 0xff0000;
 const dist_colision_zonas = 1.5;
+const Text_color =" #ffffff";
+const Background_color =" #92c5fc";
 
 //Parametros elección dificultad (Zona 0)
 const Opciones = ["Fácil", "Difícil"];
@@ -63,6 +65,30 @@ var Difficultad;
 var Index_zona;
 
 //Parametros Laberinto de Meteoritos (Zona 1)
+const canvas_Zona1 = document.createElement('canvas');
+const ctx_Zona1 = canvas_Zona1.getContext('2d');
+let Lineas_Zona1 = [
+    "🔍 Desafío: Ayuda al astronauta a esquivar los meteoritos y llegar a la zona segura. Muevete con WASD y llega a la zona verde para salir"
+];
+
+const Meteoritos = [
+    { x: 100, y: 50, w: 50, h: 50, speed: 1.2, direction: 1 },
+    { x: 200, y: 150, w: 50, h: 50, speed: 0.8, direction: -1 },
+    { x: 300, y: 100, w: 50, h: 50, speed: 1.3, direction: 1 },
+    { x: 400, y: 151, w: 50, h: 50, speed: 0.9, direction: -1 },
+    { x: 500, y: 180, w: 50, h: 50, speed: 1.4, direction: 1 },
+    { x: 600, y: 90, w: 50, h: 50, speed: 0.7, direction: -1 },
+    { x: 700, y: 155, w: 50, h: 50, speed: 1.1, direction: 1 },
+    { x: 800, y: 90, w: 50, h: 50, speed: 0.6, direction: -1 },
+    { x: 900, y: 160, w: 50, h: 50, speed: 1.5, direction: 1 },
+    { x: 900, y: 40, w: 50, h: 50, speed: 0.5, direction: -1 }
+];
+const MeteoritosColor = "#828282";
+let nave = { x: 512, y: 430, size: 20 ,color: "#ff0000", speed: 5};
+var gameActive_Zona1 = false;
+var LastY_Zona1 = 0;
+var backgroundtexture_Zona1;
+const meteoritos_length = [Meteoritos.length/2, Meteoritos.length];
 
 
 function CreateScenePhobos(globalrenderer)
@@ -139,7 +165,7 @@ function CreateScenePhobos(globalrenderer)
 
 
 function CrearSkysphere(){  
-    TextureCubeLoader.setPath(path);
+    TextureCubeLoader.setPath(Starspath);
     const texture = TextureCubeLoader.load([
         'px.jpg', // Positivo en X (derecha)
         'nx.jpg', // Negativo en X (izquierda)
@@ -170,7 +196,7 @@ function CrearZonas(){
         const material = new THREE.MeshBasicMaterial({ color: Zone_box_color });
         const cube = new THREE.Mesh(geometry, material);
         cube.position.set(zona.x, 0, zona.z);
-        sceneLuna.add(cube);
+        scenePhobos.add(cube);
     });
 
 }
@@ -228,6 +254,14 @@ function animateScenePhobos() {
     CheckVuelta();
     CheckLlegadaZonas();
     CheckBordes();
+
+    if(gameActive_Zona1){
+        updateMeteoritos();
+        ColisionMeteoritos();
+        updateCollisionMeteoritos();
+        LlegadaNaveZona1();
+        DibujarJuegoZona1();
+    }
     
 
     renderer.render(scenePhobos, cameraPhobos);
@@ -389,10 +423,32 @@ function CrearZona0() {
     scenePhobos.add(Zona0);
 }
 
+function DividirLineas(ctx, text, x, y, width, height) {
+    const words = text.split(" ");
+    let line = "";
+    let lines = 0;
+    for (let word of words) {
+        const testLine = line + word + " ";
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > width && line !== "") {
+            ctx.fillText(line, x, y + (lines * height));
+            line = word + " ";
+            lines++;
+        } else {
+            line = testLine;
+        }
+    }
+    ctx.fillText(line, x, y + (lines * height));
+    return (lines + 1) * height;
+}
+
 function CargarZonas(index){
+    // Zona0.visible = false;
     switch(index){
         case 0:
-            Zona1.visible = true;
+            CreaZona1();
+            window.addEventListener("keydown", NaveMoverse);
             break;
         case 1:
             Zona2.visible = true;
@@ -415,13 +471,206 @@ function CargarZonas(index){
     yaw = 0;
     pitch = 0;
     
-    collision = false;
     window.removeEventListener("click", onClickOpciones);
-    addEventsPhobos();
+    
 }
 
+//Zona 1
+function CreaZona1() {
+    for (let i = Zona1.children.length - 1; i >= 0; i--) {
+        let obj = Zona1.children[i];
+        if (obj.isMesh) {
+            Zona1.remove(obj);
+            obj.geometry.dispose();
+            obj.material.dispose();
+        }
+    }
+
+    canvas_Zona1.width = 1024;
+    canvas_Zona1.height = 512;
+    ctx_Zona1.fillStyle = Background_color;
+    ctx_Zona1.fillRect(0, 0, canvas_Zona1.width, canvas_Zona1.height);
+    ctx_Zona1.fillStyle = Text_color;
+    ctx_Zona1.font = "50px Arial";
+    ctx_Zona1.fillText("🛰 Reto 1: Laberinto de Meteoritos ☄️", 10, 50);
+
+    ctx_Zona1.font = "30px Arial";
+    let startY = 100;
+    let Height = 35;
+    for (let linea of Lineas_Zona1) {
+        startY += DividirLineas(ctx_Zona1, linea, 10, startY, canvas_Zona1.width - 20, Height);
+    }
+    LastY_Zona1 = startY - Height + 10;
+
+    backgroundtexture_Zona1 = new THREE.CanvasTexture(canvas_Zona1);
+
+    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
+    const backgroundMaterial = new THREE.MeshBasicMaterial({
+        map: backgroundtexture_Zona1,
+        opacity: 0.8,
+        transparent: true
+    });
+
+    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+    backgroundMesh.position.set(0, 2, -4);
+
+    Zona1.add(backgroundMesh);
+
+    DibujarJuegoZona1();
+
+    gameActive_Zona1 = true;
+
+    Zona1.visible = true;
+    const pos_global = new THREE.Vector3();
+    Zona1.children[0].getWorldPosition(pos_global);
+    cameraPhobos.lookAt(pos_global);
+    scenePhobos.add(Zona1);
+}
+
+function DibujarJuegoZona1(){
+    ctx_Zona1.fillStyle = Background_color;
+    ctx_Zona1.fillRect(0, LastY_Zona1, canvas_Zona1.width, canvas_Zona1.height);
+    ctx_Zona1.fillStyle = "#00ff00";
+    ctx_Zona1.fillRect(0, LastY_Zona1, canvas_Zona1.width, 20);
+
+    ctx_Zona1.fillStyle = MeteoritosColor;
+    for(let i =0; i < meteoritos_length[Difficultad]; i++){
+        ctx_Zona1.fillRect(Meteoritos[i].x, Meteoritos[i].y+LastY_Zona1, Meteoritos[i].w, Meteoritos[i].h);
+    }
+
+    ctx_Zona1.fillStyle = nave.color;
+    ctx_Zona1.fillRect(nave.x, nave.y, nave.size, nave.size);
+
+    backgroundtexture_Zona1.needsUpdate = true;
+}
+
+function resetZona1() {
+    nave.x = 512;
+    nave.y = 430;
+}
+
+function updateMeteoritos() {
+    Meteoritos.forEach(m => {
+        m.x += m.speed * m.direction;
+        if (m.x <= 50 || m.x >= 1000) { // Límite del movimiento
+            m.direction *= -1; // Cambia de dirección
+        }
+    });
+    
+}
+
+function ColisionMeteoritos() {
+    for(let i =0; i < meteoritos_length[Difficultad]; i++){
+        let meteoritocenterX = Meteoritos[i].x + Meteoritos[i].w / 2;
+        let meteoritocenterY = Meteoritos[i].y+LastY_Zona1 + Meteoritos[i].h / 2;
+        let navecenterX = nave.x + nave.size / 2;
+        let navecenterY = nave.y + nave.size / 2;
+
+        let dx = meteoritocenterX - navecenterX;
+        let dy = meteoritocenterY - navecenterY;
+        let distance = Math.sqrt(dx * dx + dy * dy);
 
 
+        if (distance < Meteoritos[i].w / 2 + nave.size / 2) {
+            resetZona1();
+        }
+    }
+}
+
+function updateCollisionMeteoritos() {
+    for (let i = 0; i < meteoritos_length[Difficultad]; i++) {
+        for (let j = i + 1; j < meteoritos_length[Difficultad]; j++) { // No repetir pares
+            let m1 = Meteoritos[i];
+            let m2 = Meteoritos[j];
+
+            // Calcular la distancia en X
+            let dx = m2.x - m1.x;
+            let dy = (m2.y + LastY_Zona1) - (m1.y + LastY_Zona1);
+            let distance = Math.sqrt(dx * dx + dy * dy);
+
+            let minDistance = 50; // Distancia mínima para colisión
+
+            if (distance < minDistance) { // Si hay colisión
+                m1.direction *= -1;
+                m2.direction *= -1;
+                let overlap = minDistance - distance;
+                let pushX = (dx / distance) * (overlap / 2);
+                
+                m1.x -= pushX;
+                m2.x += pushX;
+            }
+        }
+    }
+}
+
+function LlegadaNaveZona1(){
+    if (nave.y <= LastY_Zona1+10) {
+        gameActive_Zona1 = false;
+
+        
+        setTimeout(() => {
+            Zona1.visible = false;
+            window.removeEventListener("keydown", NaveMoverse);
+            addEventsPhobos();
+            resetZona1();
+            setTimeout(() => {
+                collision = false;
+                
+            }, 5000);
+        }, 2000);
+    }
+}
+
+//Zona 2
+function CreaZona2() {
+    const geometry = new THREE.PlaneGeometry(10, 5);
+    const material = new THREE.MeshBasicMaterial({ 
+        color: 0x000000, 
+        opacity: 0.5, 
+        transparent: true, 
+        side: THREE.DoubleSide  // Permite ver el plano desde ambos lados
+    });
+    const background = new THREE.Mesh(geometry, material);
+    background.position.set(0, 2, -4);
+    Zona0.add(background);
+     // Texto principal
+     Fontloader.load(FontName, function (font) {
+        const textGeometry = new TextGeometry(Texto_Zona0, {
+            font: font,
+            size: FontSizeOpciones,
+            height: FontHeightOpciones,
+            depth: FontDepthOpciones
+        });
+
+        textGeometry.computeBoundingBox();
+        textGeometry.center();
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
+
+        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
+        textMesh.position.set(0, 2, -4);
+
+        Zona0.add(textMesh);
+    });
+
+    const starShape = new THREE.Shape();
+    const spikes = 5;
+    const outerRadius = 2;
+    const innerRadius = 1;
+    starShape.moveTo(outerRadius, 0);
+    for (let i = 0; i < spikes * 2; i++) {
+        const radius = i % 2 === 0 ? outerRadius : innerRadius;
+        const angle = (i / (spikes * 2)) * Math.PI * 2;
+        starShape.lineTo(Math.cos(angle) * radius, Math.sin(angle) * radius);
+    }
+    starShape.lineTo(outerRadius, 0);
+
+    const starGeometry = new THREE.ShapeGeometry(starShape);
+    const starMaterial = new THREE.MeshBasicMaterial({ color: 0xffcc00 });
+    const starMesh = new THREE.Mesh(starGeometry, starMaterial);
+    starMesh.position.set(10, 0, 0);
+    scene.add(starMesh);
+}
 
 //Eventos
 function onkeydown(event) {
@@ -527,6 +776,33 @@ function onMouseMove(event) {
     cameraPhobos.quaternion.copy(quaternionYaw);
     cameraPhobos.quaternion.multiply(quaternionPitch);
 };
+
+function NaveMoverse(event){
+    const key = event.key;
+
+    switch (key) {
+        case "w":
+        case "W":
+            nave.y -= 10;
+            break;
+        case "s":
+        case "S":
+            nave.y += 10;
+            break;
+        case "a":
+        case "A":
+            nave.x -= 10;
+            break;
+        case "d":
+        case "D":
+            nave.x += 10;
+            break;
+    }
+
+
+}
+
+
 
 function addEventsPhobos(){
     window.addEventListener("resize", resize);
