@@ -83,6 +83,7 @@ let Lineas_Zona1 = [
     "📝 Código en pantalla: 2 - 5 - 11 - 23 - ?",
     "🤖 Pregunta: ¿Cuál es el número que falta?"]
 ];
+const titulo_Reto_Zona1 = "🛰 Reto 1: Código de las Constelaciones⭐";
 
 //Parametros La suma de planetas (Zona 2)
 const canvas_Zona2 = document.createElement("canvas");
@@ -98,6 +99,7 @@ let Lineas_Zona2 = [["🔍 Desafío: Un robot de la nave solo abrirá la puerta 
         "🤖 Pregunta: Si restamos las lunas de Marte y Urano a la suma de Júpiter y Saturno, ¿cuántas lunas quedan?"]
 ];
 const Correct_answer_Zona2 = ["81", "133"];
+const titulo_Reto_Zona2 = "🌍 Reto 2: La Suma de los Planetas 🪐";
 
 //Parametros Coordenadas de la nave (Zona 3)
 const canvas_Zona3 = document.createElement("canvas");
@@ -111,6 +113,7 @@ let Lineas_Zona3 = [["🔍 Desafío: Los astronautas encuentran un mapa estelar 
         "🤖 Pregunta: ¿Cuál es la siguiente coordenada? Escribelo con el siguiente formato: (x,y)"]
 ];
 const Correct_answer_Zona3 = ["(5,8)", "(5,17)"];
+const titulo_Reto_Zona3 = "🚀 Reto 3: Coordenadas Espaciales 📡";
 
 //Parametros Zona 4
 const canvas_Zona4 = document.createElement("canvas");
@@ -124,6 +127,7 @@ let Lineas_Zona4 = [["🔍 Desafío: La nave necesita recargar energía solar y 
         "🤖 Pregunta: ¿Cuántos metros cuadrados de paneles pueden generar energía?"
     ]];
 const Correct_answer_Zona4 = ["12","60"];
+const titulo_Reto_Zona4 = "🔥 Reto 4: Energía Solar de la Nave ☀️🔋";
 
 //Parametros Zona 5
 const canvas_Zona5 = document.createElement("canvas");
@@ -139,6 +143,7 @@ let Lineas_Zona5 = [["🔍 Desafío: Para activar el motor de velocidad luz, los
         "a) 299,792    b) 300,000   c) 299,000",
         "📝 Escribe la respuesta en formato numérico.(xxx,xxx)"]];
 const Correct_answer_Zona5 = ["300,000,000","299,792"];
+const titulo_Reto_Zona5 = "🌠 Reto 5: La Velocidad de la Luz ⚡";
 
 
 
@@ -355,46 +360,6 @@ function CheckLlegadaZonas(){
 
 
 
-function CargarZonas(index){
-    // console.log("Cargando Zona: "+index);
-    window.removeEventListener("click", onClickOpciones);
-    switch(index){
-        case 0:
-            CreaZona1();
-            LastY_Global = LastY_Zona1;
-            break;
-       case 1:
-            CrearZona2();
-            LastY_Global = LastY_Zona2;
-            break;
-        case 2:
-            CrearZona3();
-            LastY_Global = LastY_Zona3;
-            break;
-        case 3:
-            CrearZona4();
-            LastY_Global = LastY_Zona4;
-            break;
-        case 4:
-            CrearZona5();
-            LastY_Global = LastY_Zona5;
-            break;
-        default:
-            return;
-
-    }
-        
-        collision = true;
-        removemovementEvents();
-        forward = 0;
-        right = 0;
-        yaw = 0;
-        pitch = 0;
-        window.addEventListener("keydown", escribirCanvas);
-    
-}
-
-//Zona 0
 function CrearZona0() {
     // Plano Background
     const geometry = new THREE.PlaneGeometry(10, 5);
@@ -505,206 +470,116 @@ function CargarZona0(index){
     window.addEventListener("click", onClickOpciones);
 }
 
+function CrearCanvasTexture(indice) {
+    let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
-//Zona 1
-function CreaZona1(){
-    clearZone(Zona1);
+    window.removeEventListener("click", onClickOpciones);
 
-    canvas_Zona1.width = 1024;
-    canvas_Zona1.height = 512;
-
-    ctx_Zona1.fillStyle = Background_color;
-    ctx_Zona1.fillRect(0, 0, canvas_Zona1.width, canvas_Zona1.height);
-    ctx_Zona1.fillStyle = Text_color;
-    ctx_Zona1.font = "50px Arial";
-    ctx_Zona1.fillText("🛰 Reto 1: Código de las Constelaciones⭐", 10, 50);
-    
-    ctx_Zona1.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona1[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona1, linea, 10, startY, canvas_Zona1.width - 20, Height);
+    switch (indice) {
+        case 0:
+            zona = Zona1;
+            tituloreto = titulo_Reto_Zona1;
+            canvas = canvas_Zona1;
+            ctx = ctx_Zona1;
+            lineas = Lineas_Zona1[Difficultad];
+            break;
+        case 1:
+            zona = Zona2;
+            tituloreto = titulo_Reto_Zona2;
+            canvas = canvas_Zona2;
+            ctx = ctx_Zona2;
+            lineas = Lineas_Zona2[Difficultad];
+            break;
+        case 2:
+            zona = Zona3;
+            tituloreto = titulo_Reto_Zona3;
+            canvas = canvas_Zona3;
+            ctx = ctx_Zona3;
+            lineas = Lineas_Zona3[Difficultad];
+            break;
+        case 3:
+            zona = Zona4;
+            tituloreto = titulo_Reto_Zona4;
+            canvas = canvas_Zona4;
+            ctx = ctx_Zona4;
+            lineas = Lineas_Zona4[Difficultad];
+            break;
+        case 4:
+            zona = Zona5;
+            tituloreto = titulo_Reto_Zona5;
+            canvas = canvas_Zona5;
+            ctx = ctx_Zona5;
+            lineas = Lineas_Zona5[Difficultad];
+            break;
+        default:
+            return;
     }
 
-    LastY_Zona1 = startY;
+    clearZone(zona);
 
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona1 = new THREE.CanvasTexture(canvas_Zona1);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona1,
-        opacity: 0.8,
-        transparent: true
-     });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona1.add(backgroundMesh);
+    canvas.width = 1024;
+    canvas.height = 512;
 
-    Zona1.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona1.children[0].getWorldPosition(pos_global);
-    cameraLuna.lookAt(pos_global);
-    sceneLuna.add(Zona1);
-}
+    ctx.fillStyle = Background_color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = Text_color;
+    ctx.font = "50px Arial";
+    ctx.fillText(tituloreto, 10, 50);
 
-//Zona 2
-function CrearZona2(){
-    clearZone(Zona2);
-
-    canvas_Zona2.width = 1024;
-    canvas_Zona2.height = 512;
-
-    ctx_Zona2.fillStyle = Background_color;
-    ctx_Zona2.fillRect(0, 0, canvas_Zona2.width, canvas_Zona2.height);
-    ctx_Zona2.fillStyle = Text_color;
-    ctx_Zona2.font = "50px Arial";
-    ctx_Zona2.fillText("🌍 Reto 2: La Suma de los Planetas 🪐", 10, 50);
-    
-    ctx_Zona2.font = "30px Arial";
-    let startY=100;
+    ctx.font = "30px Arial";
+    let startY = 100;
     let Height = 35;
-    for (let linea of Lineas_Zona2[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona2, linea, 10, startY, canvas_Zona2.width - 20, Height);
+    for (let linea of lineas) {
+        startY += DividirLineas(ctx, linea, 10, startY, canvas.width - 20, Height);
     }
 
-    LastY_Zona2 = startY;
+    LastY_Global = startY;
 
     const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona2 = new THREE.CanvasTexture(canvas_Zona2);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona2,
+    backgroundtexture = new THREE.CanvasTexture(canvas);
+    const backgroundMaterial = new THREE.MeshBasicMaterial({
+        map: backgroundtexture,
         opacity: 0.8,
-        transparent: true
+        transparent: true,
     });
-    
+
     const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
     backgroundMesh.position.set(0, 2, -4);
-    Zona2.add(backgroundMesh);
+    zona.add(backgroundMesh);
 
-    Zona2.visible = true;
+    zona.visible = true;
     const pos_global = new THREE.Vector3();
-    Zona2.children[0].getWorldPosition(pos_global);
+    zona.children[0].getWorldPosition(pos_global);
     cameraLuna.lookAt(pos_global);
-    sceneLuna.add(Zona2);
-}
+    sceneLuna.add(zona);
 
-//Zona 3
-function CrearZona3(){
-    clearZone(Zona3);
-
-    canvas_Zona3.width = 1024;
-    canvas_Zona3.height = 512;
-
-    ctx_Zona3.fillStyle = Background_color;
-    ctx_Zona3.fillRect(0, 0, canvas_Zona3.width, canvas_Zona3.height);
-    ctx_Zona3.fillStyle = Text_color;
-    ctx_Zona3.font = "50px Arial";
-    ctx_Zona3.fillText("🚀 Reto 3: Coordenadas Espaciales 📡", 10, 50);
-    
-    ctx_Zona3.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona3[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona3, linea, 10, startY, canvas_Zona3.width - 20, Height);
+    switch (indice) {
+        case 0:
+            backgroundtexture_Zona1 = backgroundtexture;
+            break;
+        case 1:
+            backgroundtexture_Zona2 = backgroundtexture;
+            break;
+        case 2:
+            backgroundtexture_Zona3 = backgroundtexture;
+            break;
+        case 3:
+            backgroundtexture_Zona4 = backgroundtexture;
+            break;
+        case 4:
+            backgroundtexture_Zona5 = backgroundtexture;
+            break;
+        default:
+            return;
     }
 
-    LastY_Zona3 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona3 = new THREE.CanvasTexture(canvas_Zona3);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona3,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona3.add(backgroundMesh);
-
-    Zona3.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona3.children[0].getWorldPosition(pos_global);
-    cameraLuna.lookAt(pos_global);
-    sceneLuna.add(Zona3);
-
-}
-
-//Zona 4
-function CrearZona4(){
-    clearZone(Zona4);
-
-    canvas_Zona4.width = 1024;
-    canvas_Zona4.height = 512;
-
-    ctx_Zona4.fillStyle = Background_color;
-    ctx_Zona4.fillRect(0, 0, canvas_Zona4.width, canvas_Zona4.height);
-    ctx_Zona4.fillStyle = Text_color;
-    ctx_Zona4.font = "50px Arial";
-    ctx_Zona4.fillText("🔥 Reto 4: Energía Solar de la Nave ☀️🔋", 10, 50);
-    
-    ctx_Zona4.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona4[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona4, linea, 10, startY, canvas_Zona4.width - 20, Height);
-    }
-
-    LastY_Zona4 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona4 = new THREE.CanvasTexture(canvas_Zona4);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona4,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona4.add(backgroundMesh);
-
-    Zona4.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona4.children[0].getWorldPosition(pos_global);
-    cameraLuna.lookAt(pos_global);
-    sceneLuna.add(Zona4);
-}
-
-//Zona 5
-function CrearZona5(){  
-    clearZone(Zona5);
-
-    canvas_Zona5.width = 1024;
-    canvas_Zona5.height = 512;
-
-    ctx_Zona5.fillStyle = Background_color;
-    ctx_Zona5.fillRect(0, 0, canvas_Zona5.width, canvas_Zona5.height);
-    ctx_Zona5.fillStyle = Text_color;
-    ctx_Zona5.font = "50px Arial";
-    ctx_Zona5.fillText("🌠 Reto 5: La Velocidad de la Luz ⚡", 10, 50);
-    
-    ctx_Zona5.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona5[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona5, linea, 10, startY, canvas_Zona5.width - 20, Height);
-    }
-
-    LastY_Zona5 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona5 = new THREE.CanvasTexture(canvas_Zona5);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona5,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona5.add(backgroundMesh);
-
-    Zona5.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona5.children[0].getWorldPosition(pos_global);
-    cameraLuna.lookAt(pos_global);
-    sceneLuna.add(Zona5);
+    collision = true;
+        removemovementEvents();
+        forward = 0;
+        right = 0;
+        yaw = 0;
+        pitch = 0;
+        window.addEventListener("keydown", escribirCanvas);
 }
 
 function clearZone(zone) {
@@ -866,7 +741,7 @@ function onClickOpciones(event){
         if (clickedButton.userData.index !== undefined) {
             Difficultad = clickedButton.userData.index;
             Zona0.visible = false;
-            CargarZonas(Index_zona);
+            CrearCanvasTexture(Index_zona);
         }
     }
 }

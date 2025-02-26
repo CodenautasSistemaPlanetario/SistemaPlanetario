@@ -20,7 +20,7 @@ var sun;
 
 const moons = [];
 const moonData = [
-    { name:'Luna', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
+    { name:'Luna', namePlanet:'Mechanon', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
     { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
     { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed:4 , speedrotation: 0.5,},
 ];
@@ -161,7 +161,6 @@ function PlanetGeometry() {
 
 function MoonGeometry() {
     moonData.forEach((data) => {
-        console.log(planets.map(p => p.name))
         const parentPlanet = planets.find(p => p.name === data.namePlanet);
         if (!parentPlanet) return; // Si no hay planeta con ese nombre, continuar
 
@@ -175,7 +174,6 @@ function MoonGeometry() {
         moon.name = data.name;
         // Posición inicial relativa al planeta
         const angle = Math.random() * Math.PI * 2;
-        console.log(parentPlanet.position);
         moon.position.set(
             parentPlanet.position.x + data.distance * Math.cos(angle),
             0,
@@ -192,7 +190,6 @@ function MoonGeometry() {
 
         scenePlanets.add(moon);
         moons.push(moon);
-        console.log(moon);
 
     });
 }
@@ -271,7 +268,6 @@ function animateScenePlanets() {
 function CheckPlanetsCollisions() {
 
     if(checkedThisFrame){
-        console.log("Already checked this frame");
         return;
     }
     checkedThisFrame = true;
@@ -316,7 +312,7 @@ function CheckMoonCollision(){
         const distance = cameraWorldPos.distanceTo(moonWorldPos);
 
         if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
-            changeScene("scenePhobos");
+            changeScene("sceneLuna");
             document.exitPointerLock();
         }
     });
