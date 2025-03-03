@@ -221,10 +221,10 @@ function CargarZona0(Zona0,position,camera){
             window.addEventListener("click",onClickOpcionesPhobos);
             break;
         case "deimos":
-            window.addEventListener("click", (event) => {onClickOpcionesDeimos(event)});
+            window.addEventListener("click",onClickOpcionesDeimos);
             break;
         case "luna":
-            window.addEventListener("click",(event) => {onClickOpcionesLuna(event)});
+            window.addEventListener("click",onClickOpcionesLuna);
             break;
     }
 

@@ -1,14 +1,10 @@
 import * as THREE from 'three';
-import {changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents} from "../Controlador.js";
-import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
-import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas } from './FucionesComunesLunas.js';
+import {addmovementEvents} from "../Controlador.js";
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas } from './FucionesComunesLunas.js';
 
 
 //Texturas
 const TextureLoader = new THREE.TextureLoader();
-const Fontloader = new FontLoader();
-const FontName = './font/Roboto_Regular.json';
 const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
 const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
@@ -24,7 +20,6 @@ const mouse = new THREE.Vector2();
 var sceneLuna,cameraLuna, renderer;
 
 
-var empieza_moverse = false;
 var collision = false;
 
 var ya_jugado = false;
@@ -42,13 +37,6 @@ var LastY_Global;
 
 
 //Parametros elección dificultad (Zona 0)
-const Opciones = ["Fácil", "Difícil"];
-const Button_Color= 0x0000ff;
-const FontSizeOpciones = 0.5;
-const FontHeightOpciones = 0.1;
-const FontDepthOpciones = 0.01;
-const FontColorOpciones = 0xffffff;
-const Texto_Zona0 = "Elige la dificultad del reto:";
 var Difficultad;
 var Index_zona;
 
@@ -56,8 +44,6 @@ var Index_zona;
 var Can_write = true;
 const Text_color =" #ffffff";
 const Background_color =" #92c5fc";
-const Zone_box_color = 0xff0000;
-const dist_colision_zonas = 1;
 let User_input = "";
 
 //Parametros Secuencia (Zona 1)
@@ -205,7 +191,6 @@ function CreateSceneLuna(globalrenderer)
 }
 
 //Geometria
-
 function animateSceneLunas() {
     
     if(ya_jugado){
@@ -215,7 +200,7 @@ function animateSceneLunas() {
 
 
     CheckVuelta(cameraLuna);
-    CheckLlegadaZonas();
+   [collision,Index_zona] =  CheckLlegadaZonas(ZonasJugables,cameraLuna,Zona0,collision);
     CheckBordes(cameraLuna);
     
 
@@ -236,29 +221,10 @@ function reiniciar(){
     Zona4.visible = false;
     Zona5.visible = false;
 
-    resetMovimientoCamara();
 
 }
 
 //Funciones
-
-
-function CheckLlegadaZonas(){
-    if(!collision){
-        ZonasJugables.forEach((zona,index) => {
-            const pos_zona_elevada = new THREE.Vector3(zona.x, cameraLuna.position.y, zona.z);
-            const distance = cameraLuna.position.distanceTo(pos_zona_elevada);
-    
-            if(distance <= dist_colision_zonas){
-                Index_zona = index;
-                CargarZona0(index,Zona0,Zona1,Zona2,Zona3,Zona4,Zona5,cameraLuna);
-            }
-        });
-    }
-
-}
-
-
 function CrearCanvasTexture(indice) {
     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
@@ -363,8 +329,6 @@ function CrearCanvasTexture(indice) {
     }
 
     collision = true;
-        // removemovementEvents();
-    resetMovimientoCamara();
      window.addEventListener("keydown", escribirCanvas);
 }
 

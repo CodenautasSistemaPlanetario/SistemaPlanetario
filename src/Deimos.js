@@ -1,16 +1,13 @@
 import * as THREE from 'three';
-import {changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents} from "../Controlador.js";
-import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
-import { clearZone, CrearSkysphere,CheckBordes,CheckVuelta } from './FucionesComunesLunas.js';
+import {addmovementEvents} from "../Controlador.js";
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas } from './FucionesComunesLunas.js';
+
 
 
 //Texturas
 
 
 const TextureLoader = new THREE.TextureLoader();
-const Fontloader = new FontLoader();
-const FontName = './font/Roboto_Regular.json';
 const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
 const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
@@ -42,8 +39,6 @@ const Zona3 = new THREE.Group();
 const Zona4 = new THREE.Group();
 const Zona5 = new THREE.Group();
 
-const Zone_box_color = 0xff0000;
-const dist_colision_zonas = 1.5;
 const Text_color =" #ffffff";
 const Background_color =" #92c5fc";
 var LastY_Global;  
@@ -52,13 +47,6 @@ let User_input = "";
 
 
 //Parametros elección dificultad (Zona 0)
-const Opciones = ["Fácil", "Difícil"];
-const Button_Color= 0x0000ff;
-const FontSizeOpciones = 0.5;
-const FontHeightOpciones = 0.1;
-const FontDepthOpciones = 0.01;
-const FontColorOpciones = 0xffffff;
-const Texto_Zona0 = "Elige la dificultad del reto:";
 var Difficultad;
 var Index_zona;
 
@@ -194,7 +182,7 @@ function CreateSceneDeimos(globalrenderer)
     
 
     CrearSkysphere(sceneDeimos);
-    CrearZonas();
+    CrearZonas(ZonasJugables,sceneDeimos,Zona0,Zona1,Zona2,Zona3,Zona4,Zona5);
     
 
 
@@ -203,29 +191,6 @@ function CreateSceneDeimos(globalrenderer)
 
 //Geometria
 
-
-function CrearZonas(){
-    CrearZona0();   
-    Zona1.position.set(20,0,0);//Derecha
-    Zona2.position.set(6.18,0,19.02);//Izquierda
-    Zona3.position.set(-16.18,0,11.76);//Delante
-    Zona4.position.set(-16.18,0,-11.76);//Atrás
-    Zona5.position.set(6.18,0,-19.02);//Atrás
-    ZonasJugables.push(Zona1.position);
-    ZonasJugables.push(Zona2.position);
-    ZonasJugables.push(Zona3.position);
-    ZonasJugables.push(Zona4.position);
-    ZonasJugables.push(Zona5.position);
-
-    ZonasJugables.forEach(zona => {
-        const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: Zone_box_color });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(zona.x, 0, zona.z);
-        sceneDeimos.add(cube);
-    });
-
-}
 
 function animateSceneDeimos() {
     
@@ -238,7 +203,7 @@ function animateSceneDeimos() {
    
 
     CheckVuelta(cameraDeimos);
-    CheckLlegadaZonas();
+    [collision,Index_zona] = CheckLlegadaZonas(ZonasJugables,cameraDeimos,Zona0,collision);
     CheckBordes(cameraDeimos);
     
 
@@ -247,136 +212,10 @@ function animateSceneDeimos() {
 
 //Funciones
 
-function CheckLlegadaZonas(){
-    if(!collision){
-        ZonasJugables.forEach((zona,index) => {
-            const pos_zona_elevada = new THREE.Vector3(zona.x, cameraDeimos.position.y, zona.z);
-            const distance = cameraDeimos.position.distanceTo(pos_zona_elevada);
-    
-            if(distance <= dist_colision_zonas){
-                CargarZona0(index);
-            }
-        });
-    }
-
-}
-
-
-function CrearZona0() {
-    // Plano Background
-    const geometry = new THREE.PlaneGeometry(10, 5);
-    const material = new THREE.MeshBasicMaterial({ 
-        color: 0x000000, 
-        opacity: 0.5, 
-        transparent: true, 
-        side: THREE.DoubleSide  // Permite ver el plano desde ambos lados
-    });
-    const background = new THREE.Mesh(geometry, material);
-    background.position.set(0, 2, -4);
-    Zona0.add(background);
-
-    // Texto principal
-    Fontloader.load(FontName, function (font) {
-        const textGeometry = new TextGeometry(Texto_Zona0, {
-            font: font,
-            size: FontSizeOpciones,
-            height: FontHeightOpciones,
-            depth: FontDepthOpciones
-        });
-
-        textGeometry.computeBoundingBox();
-        textGeometry.center();
-
-        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-
-        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        textMesh.position.set(0, 2, -4);
-
-        Zona0.add(textMesh);
-    });
-
-    // Botones
-    Opciones.forEach((option, index) => {
-        const geometry = new THREE.BoxGeometry(3, 1, 0.1);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: Button_Color, 
-            side: THREE.DoubleSide  // Asegura que las caras sean visibles desde ambos lados
-        });
-        const button = new THREE.Mesh(geometry, material);
-
-        button.position.set(-3 + (6 * index), 1, -4);
-        button.userData = { index };
-        Zona0.add(button);
-
-        // Texto dentro del botón
-        Fontloader.load(FontName, function (font) {
-            const textGeometry = new TextGeometry(option, {
-                font: font,
-                size: FontSizeOpciones * 0.5, 
-                height: FontHeightOpciones * 0.5,
-                depth: FontDepthOpciones
-            });
-
-            textGeometry.computeBoundingBox();
-            textGeometry.center();
-
-            const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-            textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06); // Mover texto hacia adelante
-            Zona0.add(textMesh);
-        });
-    });
-
-    Zona0.visible = false;
-    sceneDeimos.add(Zona0);
-}
-
-function CargarZona0(index){
-    var position = Zona0.position;
-    Index_zona = index;
-    switch(index){
-        case 0:
-            position = Zona1.position;
-            break;
-       case 1:
-            position = Zona2.position;
-            break;
-        case 2:
-            position = Zona3.position;
-            break;
-        case 3:
-            position = Zona4.position;
-            break;
-        case 4:
-            position = Zona5.position;
-            break;
-        default:
-            return;
-
-    }
-    Zona0.position.set(position.x, position.y, position.z);
-    Zona0.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona0.children[0].getWorldPosition(pos_global);
-    
-    cameraDeimos.position.set(Zona0.position.x, 2, Zona0.position.z);
-    cameraDeimos.lookAt(pos_global);
-
-    collision = true;
-    removemovementEvents();
-    resetMovimientoCamara();
-    window.addEventListener("click", onClickOpciones);
-}
-
-
-
-
-
 function CrearCanvasTexture(indice) {
     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
-    window.removeEventListener("click", onClickOpciones);
+    window.removeEventListener("click", onClickOpcionesDeimos);
 
     switch (indice) {
         case 0:
@@ -477,9 +316,7 @@ function CrearCanvasTexture(indice) {
     }
 
     collision = true;
-        // removemovementEvents();
-    resetMovimientoCamara();
-     window.addEventListener("keydown", escribirCanvas);
+    window.addEventListener("keydown", escribirCanvas);
 }
 
 
