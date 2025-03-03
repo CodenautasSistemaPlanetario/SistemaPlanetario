@@ -1,8 +1,8 @@
 import * as THREE from 'three';
-import { changeScene,removemovementEvents,resetMovimientoCamara } from '../Controlador.js';
+import { changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents } from '../Controlador.js';
 import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
-import {onClickOpcionesPhobos } from './Phobos.js';
+import {onClickOpcionesPhobos,escribirCanvas } from './Phobos.js';
 import { onClickOpcionesDeimos } from './Deimos.js';
 import { onClickOpcionesLuna } from './Luna.js';
 
@@ -249,4 +249,18 @@ export function DividirLineas(ctx, text, x, y, width, height) {
     }
     ctx.fillText(line, x, y + (lines * height));
     return (lines + 1) * height;
+}
+
+
+export function AcabadoZona(Zona1,Zona2,Zona3,Zona4,Zona5){
+    window.removeEventListener("keydown", escribirCanvas);
+    addmovementEvents();
+    Zona1.visible = false;
+    Zona2.visible = false;
+    Zona3.visible = false;
+    Zona4.visible = false;
+    Zona5.visible = false;
+    setTimeout(() => {
+        return collision = false;
+    }, 5000);
 }

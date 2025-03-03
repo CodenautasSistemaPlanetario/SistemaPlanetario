@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import {addmovementEvents} from "../Controlador.js";
-import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas } from './FucionesComunesLunas.js';
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas, AcabadoZona } from './FucionesComunesLunas.js';
 
 
 
@@ -199,9 +198,6 @@ function animateSceneDeimos() {
         ya_jugado = false;
     }
 
-
-   
-
     CheckVuelta(cameraDeimos);
     [collision,Index_zona] = CheckLlegadaZonas(ZonasJugables,cameraDeimos,Zona0,collision);
     CheckBordes(cameraDeimos);
@@ -212,276 +208,264 @@ function animateSceneDeimos() {
 
 //Funciones
 
-function CrearCanvasTexture(indice) {
-    let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
+// function CrearCanvasTexture(indice) {
+//     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
-    window.removeEventListener("click", onClickOpcionesDeimos);
+//     window.removeEventListener("click", onClickOpcionesDeimos);
 
-    switch (indice) {
-        case 0:
-            zona = Zona1;
-            tituloreto = titulo_Reto_Zona1;
-            canvas = canvas_Zona1;
-            ctx = ctx_Zona1;
-            lineas = Lineas_Zona1[Difficultad];
-            break;
-        case 1:
-            zona = Zona2;
-            tituloreto = titulo_Reto_Zona2;
-            canvas = canvas_Zona2;
-            ctx = ctx_Zona2;
-            lineas = Lineas_Zona2[Difficultad];
-            break;
-        case 2:
-            zona = Zona3;
-            tituloreto = titulo_Reto_Zona3;
-            canvas = canvas_Zona3;
-            ctx = ctx_Zona3;
-            lineas = Lineas_Zona3[Difficultad];
-            break;
-        case 3:
-            zona = Zona4;
-            tituloreto = titulo_Reto_Zona4;
-            canvas = canvas_Zona4;
-            ctx = ctx_Zona4;
-            lineas = Lineas_Zona4[Difficultad];
-            break;
-        case 4:
-            zona = Zona5;
-            tituloreto = titulo_Reto_Zona5;
-            canvas = canvas_Zona5;
-            ctx = ctx_Zona5;
-            lineas = Lineas_Zona5[Difficultad];
-            break;
-        default:
-            return;
-    }
+//     switch (indice) {
+//         case 0:
+//             zona = Zona1;
+//             tituloreto = titulo_Reto_Zona1;
+//             canvas = canvas_Zona1;
+//             ctx = ctx_Zona1;
+//             lineas = Lineas_Zona1[Difficultad];
+//             break;
+//         case 1:
+//             zona = Zona2;
+//             tituloreto = titulo_Reto_Zona2;
+//             canvas = canvas_Zona2;
+//             ctx = ctx_Zona2;
+//             lineas = Lineas_Zona2[Difficultad];
+//             break;
+//         case 2:
+//             zona = Zona3;
+//             tituloreto = titulo_Reto_Zona3;
+//             canvas = canvas_Zona3;
+//             ctx = ctx_Zona3;
+//             lineas = Lineas_Zona3[Difficultad];
+//             break;
+//         case 3:
+//             zona = Zona4;
+//             tituloreto = titulo_Reto_Zona4;
+//             canvas = canvas_Zona4;
+//             ctx = ctx_Zona4;
+//             lineas = Lineas_Zona4[Difficultad];
+//             break;
+//         case 4:
+//             zona = Zona5;
+//             tituloreto = titulo_Reto_Zona5;
+//             canvas = canvas_Zona5;
+//             ctx = ctx_Zona5;
+//             lineas = Lineas_Zona5[Difficultad];
+//             break;
+//         default:
+//             return;
+//     }
 
-    clearZone(zona);
+//     clearZone(zona);
 
-    canvas.width = 1024;
-    canvas.height = 512;
+//     canvas.width = 1024;
+//     canvas.height = 512;
 
-    ctx.fillStyle = Background_color;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
-    ctx.fillStyle = Text_color;
-    ctx.font = "50px Arial";
-    ctx.fillText(tituloreto, 10, 50);
+//     ctx.fillStyle = Background_color;
+//     ctx.fillRect(0, 0, canvas.width, canvas.height);
+//     ctx.fillStyle = Text_color;
+//     ctx.font = "50px Arial";
+//     ctx.fillText(tituloreto, 10, 50);
 
-    ctx.font = "30px Arial";
-    let startY = 100;
-    let Height = 35;
-    for (let linea of lineas) {
-        startY += DividirLineas(ctx, linea, 10, startY, canvas.width - 20, Height);
-    }
+//     ctx.font = "30px Arial";
+//     let startY = 100;
+//     let Height = 35;
+//     for (let linea of lineas) {
+//         startY += DividirLineas(ctx, linea, 10, startY, canvas.width - 20, Height);
+//     }
 
-    LastY_Global = startY;
+//     LastY_Global = startY;
 
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture = new THREE.CanvasTexture(canvas);
-    const backgroundMaterial = new THREE.MeshBasicMaterial({
-        map: backgroundtexture,
-        opacity: 0.8,
-        transparent: true,
-    });
+//     const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
+//     backgroundtexture = new THREE.CanvasTexture(canvas);
+//     const backgroundMaterial = new THREE.MeshBasicMaterial({
+//         map: backgroundtexture,
+//         opacity: 0.8,
+//         transparent: true,
+//     });
 
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    zona.add(backgroundMesh);
+//     const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+//     backgroundMesh.position.set(0, 2, -4);
+//     zona.add(backgroundMesh);
 
-    zona.visible = true;
-    const pos_global = new THREE.Vector3();
-    zona.children[0].getWorldPosition(pos_global);
-    cameraDeimos.lookAt(pos_global);
-    sceneDeimos.add(zona);
+//     zona.visible = true;
+//     const pos_global = new THREE.Vector3();
+//     zona.children[0].getWorldPosition(pos_global);
+//     cameraDeimos.lookAt(pos_global);
+//     sceneDeimos.add(zona);
 
-    switch (indice) {
-        case 0:
-            backgroundtexture_Zona1 = backgroundtexture;
-            break;
-        case 1:
-            backgroundtexture_Zona2 = backgroundtexture;
-            break;
-        case 2:
-            backgroundtexture_Zona3 = backgroundtexture;
-            break;
-        case 3:
-            backgroundtexture_Zona4 = backgroundtexture;
-            break;
-        case 4:
-            backgroundtexture_Zona5 = backgroundtexture;
-            break;
-        default:
-            return;
-    }
+//     switch (indice) {
+//         case 0:
+//             backgroundtexture_Zona1 = backgroundtexture;
+//             break;
+//         case 1:
+//             backgroundtexture_Zona2 = backgroundtexture;
+//             break;
+//         case 2:
+//             backgroundtexture_Zona3 = backgroundtexture;
+//             break;
+//         case 3:
+//             backgroundtexture_Zona4 = backgroundtexture;
+//             break;
+//         case 4:
+//             backgroundtexture_Zona5 = backgroundtexture;
+//             break;
+//         default:
+//             return;
+//     }
 
-    collision = true;
-    window.addEventListener("keydown", escribirCanvas);
-}
-
-
-//Eventos
-export function onClickOpcionesDeimos(event){
-    mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
-    mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
-    raycaster.setFromCamera(mouse, cameraDeimos);
-
-    const intersects = raycaster.intersectObjects(Zona0.children, true);
-    if (intersects.length > 0) {
-        const clickedButton = intersects[0].object;
-        if (clickedButton.userData.index !== undefined) {
-            Difficultad = clickedButton.userData.index;
-            Zona0.visible = false;
-            CrearCanvasTexture(Index_zona);
-        }
-    }
-}
+//     collision = true;
+//     window.addEventListener("keydown", escribirCanvas);
+// }
 
 
-function escribirCanvas(event) {
-    let correcto = null;
-    let texto_check = "";
-    let color_check = "";
+// //Eventos
+// export function onClickOpcionesDeimos(event){
+//     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+//     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+//     raycaster.setFromCamera(mouse, cameraDeimos);
 
-    let local_canvas;
-    let local_ctx;
-    let local_texture
+//     const intersects = raycaster.intersectObjects(Zona0.children, true);
+//     if (intersects.length > 0) {
+//         const clickedButton = intersects[0].object;
+//         if (clickedButton.userData.index !== undefined) {
+//             Difficultad = clickedButton.userData.index;
+//             Zona0.visible = false;
+//             CrearCanvasTexture(Index_zona);
+//         }
+//     }
+// }
 
-    switch (Index_zona) {
-        case 0:
-            local_canvas = canvas_Zona1;
-            local_ctx = ctx_Zona1;
-            local_texture = backgroundtexture_Zona1;
-            break;
-        case 1:
-            local_canvas = canvas_Zona2;
-            local_ctx = ctx_Zona2;
-            local_texture = backgroundtexture_Zona2;
-            break;
-        case 2:
-            local_canvas = canvas_Zona3;
-            local_ctx = ctx_Zona3;
-            local_texture = backgroundtexture_Zona3;
-            break;
-        case 3:
-            local_canvas = canvas_Zona4;
-            local_ctx = ctx_Zona4;
-            local_texture = backgroundtexture_Zona4;
-            break;
-        case 4:
-            local_canvas = canvas_Zona5;
-            local_ctx = ctx_Zona5;
-            local_texture = backgroundtexture_Zona5;
-            break;
-        default:
-            return;
-    }
 
-    if (!Can_write) {
-        return;
-    }
+// function escribirCanvas(event) {
+//     let correcto = null;
+//     let texto_check = "";
+//     let color_check = "";
 
-    if (event.key === "Backspace") {
-        User_input = User_input.slice(0, -1);
-        texto_check = "";
-    } else if (event.key.length === 1) {
-        User_input += event.key;
-        texto_check = "";
-    } else if (event.key === "Enter") {
-        correcto = checkAnswer(User_input);
-        User_input = "";
-        if (correcto) {
-            texto_check = "Correcto";
-            color_check = "#00ff00";
-        } else if (!correcto) {
-            texto_check = "Incorrecto";
-            color_check = "#ff0000";
-        }
-    }
+//     let local_canvas;
+//     let local_ctx;
+//     let local_texture
+
+//     switch (Index_zona) {
+//         case 0:
+//             local_canvas = canvas_Zona1;
+//             local_ctx = ctx_Zona1;
+//             local_texture = backgroundtexture_Zona1;
+//             break;
+//         case 1:
+//             local_canvas = canvas_Zona2;
+//             local_ctx = ctx_Zona2;
+//             local_texture = backgroundtexture_Zona2;
+//             break;
+//         case 2:
+//             local_canvas = canvas_Zona3;
+//             local_ctx = ctx_Zona3;
+//             local_texture = backgroundtexture_Zona3;
+//             break;
+//         case 3:
+//             local_canvas = canvas_Zona4;
+//             local_ctx = ctx_Zona4;
+//             local_texture = backgroundtexture_Zona4;
+//             break;
+//         case 4:
+//             local_canvas = canvas_Zona5;
+//             local_ctx = ctx_Zona5;
+//             local_texture = backgroundtexture_Zona5;
+//             break;
+//         default:
+//             return;
+//     }
+
+//     if (!Can_write) {
+//         return;
+//     }
+
+//     if (event.key === "Backspace") {
+//         User_input = User_input.slice(0, -1);
+//         texto_check = "";
+//     } else if (event.key.length === 1) {
+//         User_input += event.key;
+//         texto_check = "";
+//     } else if (event.key === "Enter") {
+//         correcto = checkAnswer(User_input);
+//         User_input = "";
+//         if (correcto) {
+//             texto_check = "Correcto";
+//             color_check = "#00ff00";
+//         } else if (!correcto) {
+//             texto_check = "Incorrecto";
+//             color_check = "#ff0000";
+//         }
+//     }
 
     
 
    
-    const espacio_disponible = local_canvas.height - LastY_Global;
-    local_ctx.fillStyle = Background_color;
-    local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, espacio_disponible);
+//     const espacio_disponible = local_canvas.height - LastY_Global;
+//     local_ctx.fillStyle = Background_color;
+//     local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, espacio_disponible);
    
 
-    local_ctx.fillStyle = Text_color;
+//     local_ctx.fillStyle = Text_color;
 
 
-    let userinput_width = local_ctx.measureText(User_input).width;
-    let userinput_x = (local_canvas.width - userinput_width) / 2;
-    let userinput_y = LastY_Global + (espacio_disponible / 4);
-    local_ctx.fillText(User_input, userinput_x, userinput_y);
+//     let userinput_width = local_ctx.measureText(User_input).width;
+//     let userinput_x = (local_canvas.width - userinput_width) / 2;
+//     let userinput_y = LastY_Global + (espacio_disponible / 4);
+//     local_ctx.fillText(User_input, userinput_x, userinput_y);
 
-    if (correcto != null) {
-        local_ctx.fillStyle = color_check;
-        let texto_width = local_ctx.measureText(texto_check).width;
-        let texto_x = (local_canvas.width - texto_width) / 2;
-        local_ctx.fillText(texto_check, texto_x, userinput_y);
-        setTimeout(() => {
-            texto_check = "";
-            color_check = "";
-            local_ctx.fillStyle = Background_color;
-            local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, 90);
-            local_texture.needsUpdate = true;
-        }, 2000);
-    }
+//     if (correcto != null) {
+//         local_ctx.fillStyle = color_check;
+//         let texto_width = local_ctx.measureText(texto_check).width;
+//         let texto_x = (local_canvas.width - texto_width) / 2;
+//         local_ctx.fillText(texto_check, texto_x, userinput_y);
+//         setTimeout(() => {
+//             texto_check = "";
+//             color_check = "";
+//             local_ctx.fillStyle = Background_color;
+//             local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, 90);
+//             local_texture.needsUpdate = true;
+//         }, 2000);
+//     }
 
-    local_texture.needsUpdate = true;
-}
+//     local_texture.needsUpdate = true;
+// }
 
-function checkAnswer(letter) {
-    let correcto = false;
-    let local_correct_answer = "";
-    switch(Index_zona){
-        case 0:
-            local_correct_answer = Correct_answer_Zona1[Difficultad];
-            break;
-        case 1:
-            local_correct_answer = Correct_answer_Zona2[Difficultad];
-            break;
-        case 2:
-            local_correct_answer = Correct_answer_Zona3[Difficultad];
-            break;
-        case 3:
-            local_correct_answer = Correct_answer_Zona4[Difficultad];
-            break;
-        case 4:
-            local_correct_answer = Correct_answer_Zona5[Difficultad];
-            break;
-    }
+// function checkAnswer(letter) {
+//     let correcto = false;
+//     let local_correct_answer = "";
+//     switch(Index_zona){
+//         case 0:
+//             local_correct_answer = Correct_answer_Zona1[Difficultad];
+//             break;
+//         case 1:
+//             local_correct_answer = Correct_answer_Zona2[Difficultad];
+//             break;
+//         case 2:
+//             local_correct_answer = Correct_answer_Zona3[Difficultad];
+//             break;
+//         case 3:
+//             local_correct_answer = Correct_answer_Zona4[Difficultad];
+//             break;
+//         case 4:
+//             local_correct_answer = Correct_answer_Zona5[Difficultad];
+//             break;
+//     }
 
-    if (letter === local_correct_answer) {
-        Can_write = false; // Bloquear clics temporalmente
-        correcto = true;
-        setTimeout(() => {
-            Can_write = true; // Reactivar clics después de 2 segundos
-            AcabadoZona();
-        }, 2000);
-    } else {
-        Can_write = false; // Bloquear clics temporalmente
-        correcto = false;
-        setTimeout(() => {
-            Can_write = true;
-        }, 2000);
-    }
+//     if (letter === local_correct_answer) {
+//         Can_write = false; // Bloquear clics temporalmente
+//         correcto = true;
+//         setTimeout(() => {
+//             Can_write = true; // Reactivar clics después de 2 segundos
+//             collision = AcabadoZona(Zona1,Zona2,Zona3,Zona4,Zona5);
+//         }, 2000);
+//     } else {
+//         Can_write = false; // Bloquear clics temporalmente
+//         correcto = false;
+//         setTimeout(() => {
+//             Can_write = true;
+//         }, 2000);
+//     }
 
-    return correcto;
-}
+//     return correcto;
+// }
 
-function AcabadoZona(){
-    window.removeEventListener("keydown", escribirCanvas);
-    addmovementEvents();
-    Zona1.visible = false;
-    Zona2.visible = false;
-    Zona3.visible = false;
-    Zona4.visible = false;
-    Zona5.visible = false;
-    setTimeout(() => {
-        collision = false;
-    }, 5000);
-}
 
 export{CreateSceneDeimos, animateSceneDeimos};

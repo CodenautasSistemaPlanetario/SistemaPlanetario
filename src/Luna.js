@@ -1,6 +1,5 @@
 import * as THREE from 'three';
-import {addmovementEvents} from "../Controlador.js";
-import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas } from './FucionesComunesLunas.js';
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas,AcabadoZona } from './FucionesComunesLunas.js';
 
 
 //Texturas
@@ -359,7 +358,7 @@ function checkAnswer(letter) {
         correcto = true;
         setTimeout(() => {
             Can_write = true; // Reactivar clics después de 2 segundos
-            AcabadoZona();
+            collision = AcabadoZona(Zona1,Zona2,Zona3,Zona4,Zona5);
         }, 2000);
     } else {
         Can_write = false; // Bloquear clics temporalmente
@@ -372,18 +371,6 @@ function checkAnswer(letter) {
     return correcto;
 }
 
-function AcabadoZona(){
-    window.removeEventListener("keydown", escribirCanvas);
-    addmovementEvents();
-    Zona1.visible = false;
-    Zona2.visible = false;
-    Zona3.visible = false;
-    Zona4.visible = false;
-    Zona5.visible = false;
-    setTimeout(() => {
-        collision = false;
-    }, 5000);
-}
 
 
 //Eventos
