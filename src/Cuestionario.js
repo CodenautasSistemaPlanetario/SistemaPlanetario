@@ -186,7 +186,7 @@ function CargarResultado(){
 
     // Texto del botón
     Fontloader.load(FontName, function (font) {
-        const textGeometry = new TextGeometry("Volver a nebuloide", {
+        const textGeometry = new TextGeometry("Volver a Nebuloria", {
             font: font,
             size: 0.3, // Ajustar tamaño para evitar estiramiento
             height: 0.05,

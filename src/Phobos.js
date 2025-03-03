@@ -1,14 +1,10 @@
 import * as THREE from 'three';
-import {changeScene} from "../Controlador.js";
-import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
-import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
+import {addmovementEvents} from "../Controlador.js";
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas } from './FucionesComunesLunas.js';
 
 //Texturas
-const Starspath = "./img/Stars/";
-const TextureCubeLoader = new THREE.CubeTextureLoader();
 const TextureLoader = new THREE.TextureLoader();
-const Fontloader = new FontLoader();
-const FontName = './font/Roboto_Regular.json';
+
 const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
 const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
@@ -20,20 +16,10 @@ const Land_texture_height = TextureLoader.load(Groundpath + "Displacement.jpg");
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-var clock;
 
 var scenePhobos,cameraPhobos, renderer;
 
 
-var cameraspeed = 2;
-var forward = 0;
-var right = 0;
-var camforward, camright;
-var rotsensitivity = 0.0005;
-let yaw=0;
-let pitch=0;
-
-var empieza_moverse = false;
 var collision = false;
 
 var ya_jugado = false;
@@ -48,8 +34,7 @@ const Zona3 = new THREE.Group();
 const Zona4 = new THREE.Group();
 const Zona5 = new THREE.Group();
 
-const Zone_box_color = 0xff0000;
-const dist_colision_zonas = 1.5;
+
 const Text_color =" #ffffff";
 const Background_color =" #92c5fc";
 
@@ -59,13 +44,7 @@ var Can_write = true;
 
 
 //Parametros elección dificultad (Zona 0)
-const Opciones = ["Fácil", "Difícil"];
-const Button_Color= 0x0000ff;
-const FontSizeOpciones = 0.5;
-const FontHeightOpciones = 0.1;
-const FontDepthOpciones = 0.01;
-const FontColorOpciones = 0xffffff;
-const Texto_Zona0 = "Elige la dificultad del reto:";
+
 var Difficultad;
 var Index_zona;
 
@@ -217,12 +196,9 @@ function CreateScenePhobos(globalrenderer)
     // Cámara
     cameraPhobos.position.set(0, 2, 0);
 
-    clock = new THREE.Clock();
-    camforward = new THREE.Vector3();
-    camright = new THREE.Vector3();
-
-    CrearSkysphere();
-    CrearZonas();
+    
+    CrearSkysphere(scenePhobos);
+    CrearZonas(ZonasJugables,scenePhobos,Zona0,Zona1,Zona2,Zona3,Zona4,Zona5);
     
 
 
@@ -231,42 +207,6 @@ function CreateScenePhobos(globalrenderer)
 
 
 
-function CrearSkysphere(){  
-    TextureCubeLoader.setPath(Starspath);
-    const texture = TextureCubeLoader.load([
-        'px.jpg', // Positivo en X (derecha)
-        'nx.jpg', // Negativo en X (izquierda)
-        'py.jpg', // Positivo en Y (arriba)
-        'ny.jpg', // Negativo en Y (abajo)
-        'pz.jpg', // Positivo en Z (frente)
-        'nz.jpg'  // Negativo en Z (atrás)
-    ]);
-
-    scenePhobos.background = texture;
-}
-
-function CrearZonas(){
-    CrearZona0();   
-    Zona1.position.set(20,0,0);//Derecha
-    Zona2.position.set(6.18,0,19.02);//Izquierda
-    Zona3.position.set(-16.18,0,11.76);//Delante
-    Zona4.position.set(-16.18,0,-11.76);//Atrás
-    Zona5.position.set(6.18,0,-19.02);//Atrás
-    ZonasJugables.push(Zona1.position);
-    ZonasJugables.push(Zona2.position);
-    ZonasJugables.push(Zona3.position);
-    ZonasJugables.push(Zona4.position);
-    ZonasJugables.push(Zona5.position);
-
-    ZonasJugables.forEach(zona => {
-        const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: Zone_box_color });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(zona.x, 0, zona.z);
-        scenePhobos.add(cube);
-    });
-
-}
 
 function reiniciar(){
     cameraPhobos.position.set(0, 2, 0);
@@ -282,10 +222,6 @@ function reiniciar(){
     Zona4.visible = false;
     Zona5.visible = false;
 
-    yaw = 0;
-    pitch = 0;
-    forward = 0;
-    right = 0;
 
 }
 
@@ -299,28 +235,9 @@ function animateScenePhobos() {
     }
 
 
-    const dt = clock.getDelta();
-
-    
-    cameraPhobos.updateProjectionMatrix();
-    
-    cameraPhobos.getWorldDirection(camforward);
-    camright.crossVectors(cameraPhobos.up, camforward).normalize();
-
-    if (forward!=0) {
-        camforward.y = 0;
-        camforward.normalize();
-        cameraPhobos.position.add(camforward.clone().multiplyScalar(forward * dt *cameraspeed));
-    }
-    if (right!=0) {
-        camright.y = 0;
-        camright.normalize();
-        cameraPhobos.position.add(camright.clone().multiplyScalar(right * dt *cameraspeed));
-    }
-
-    CheckVuelta();
-    CheckLlegadaZonas();
-    CheckBordes();
+    CheckVuelta(cameraPhobos);
+    [collision,Index_zona] = CheckLlegadaZonas(ZonasJugables,cameraPhobos,Zona0,collision);
+    CheckBordes(cameraPhobos);
 
     if(gameActive_Zona1){
         updateMeteoritos();
@@ -343,183 +260,7 @@ function animateScenePhobos() {
 }
 
 
-
-function CheckVuelta(){
-    const pos_zona_elevada = new THREE.Vector3(0, cameraPhobos.position.y, 0);
-    const distance = cameraPhobos.position.distanceTo(pos_zona_elevada);
-
-    if(!empieza_moverse && distance >= 1.3){
-        empieza_moverse = true;
-    } else if(empieza_moverse && distance <= 1){
-        ya_jugado = true;
-        changeScene("scenePlanets");
-        empieza_moverse = false;
-    }
-}
-
-function CheckBordes(){
-    if(cameraPhobos.position.x >= 30){
-        cameraPhobos.position.x = 19.9;
-    }
-    if(cameraPhobos.position.x <= -30){
-        cameraPhobos.position.x = -19.9;
-    }
-    if(cameraPhobos.position.z >= 30){
-        cameraPhobos.position.z = 19.9;
-    }
-    if(cameraPhobos.position.z <= -30){
-        cameraPhobos.position.z = -19.9;
-    }
-}
-
-function CheckLlegadaZonas(){
-    if(!collision){
-        ZonasJugables.forEach((zona,index) => {
-            const pos_zona_elevada = new THREE.Vector3(zona.x, cameraPhobos.position.y, zona.z);
-            const distance = cameraPhobos.position.distanceTo(pos_zona_elevada);
-    
-            if(distance <= dist_colision_zonas){
-                CargarZona0(index);
-            }
-        });
-    }
-
-}
-
-
-
-function CargarZona0(index){
-    var position = Zona0.position;
-    Index_zona = index;
-    switch(index){
-        case 0:
-            position = Zona1.position;
-            break;
-       case 1:
-            position = Zona2.position;
-            break;
-        case 2:
-            position = Zona3.position;
-            break;
-        case 3:
-            position = Zona4.position;
-            break;
-        case 4:
-            position = Zona5.position;
-            break;
-        default:
-            return;
-
-    }
-    Zona0.position.set(position.x, position.y, position.z);
-    Zona0.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona0.children[0].getWorldPosition(pos_global);
-    
-    cameraPhobos.position.set(Zona0.position.x, 2, Zona0.position.z);
-    cameraPhobos.lookAt(pos_global);
-
-    collision = true;
-    removemovementEvents();
-    forward = 0;
-    right = 0;
-    yaw = 0;
-    pitch = 0;
-    window.addEventListener("click", onClickOpciones);
-}
-
-function CrearZona0() {
-    // Plano Background
-    const geometry = new THREE.PlaneGeometry(10, 5);
-    const material = new THREE.MeshBasicMaterial({ 
-        color: 0x000000, 
-        opacity: 0.5, 
-        transparent: true, 
-        side: THREE.DoubleSide  // Permite ver el plano desde ambos lados
-    });
-    const background = new THREE.Mesh(geometry, material);
-    background.position.set(0, 2, -4);
-    Zona0.add(background);
-
-    // Texto principal
-    Fontloader.load(FontName, function (font) {
-        const textGeometry = new TextGeometry(Texto_Zona0, {
-            font: font,
-            size: FontSizeOpciones,
-            height: FontHeightOpciones,
-            depth: FontDepthOpciones
-        });
-
-        textGeometry.computeBoundingBox();
-        textGeometry.center();
-
-        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-
-        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        textMesh.position.set(0, 2, -4);
-
-        Zona0.add(textMesh);
-    });
-
-    // Botones
-    Opciones.forEach((option, index) => {
-        const geometry = new THREE.BoxGeometry(3, 1, 0.1);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: Button_Color, 
-            side: THREE.DoubleSide  // Asegura que las caras sean visibles desde ambos lados
-        });
-        const button = new THREE.Mesh(geometry, material);
-
-        button.position.set(-3 + (6 * index), 1, -4);
-        button.userData = { index };
-        Zona0.add(button);
-
-        // Texto dentro del botón
-        Fontloader.load(FontName, function (font) {
-            const textGeometry = new TextGeometry(option, {
-                font: font,
-                size: FontSizeOpciones * 0.5, 
-                height: FontHeightOpciones * 0.5,
-                depth: FontDepthOpciones
-            });
-
-            textGeometry.computeBoundingBox();
-            textGeometry.center();
-
-            const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-            textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06); // Mover texto hacia adelante
-            Zona0.add(textMesh);
-        });
-    });
-
-    Zona0.visible = false;
-    scenePhobos.add(Zona0);
-}
-
-function DividirLineas(ctx, text, x, y, width, height) {
-    const words = text.split(" ");
-    let line = "";
-    let lines = 0;
-    for (let word of words) {
-        const testLine = line + word + " ";
-        const metrics = ctx.measureText(testLine);
-        const testWidth = metrics.width;
-        if (testWidth > width && line !== "") {
-            ctx.fillText(line, x, y + (lines * height));
-            line = word + " ";
-            lines++;
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, x, y + (lines * height));
-    return (lines + 1) * height;
-}
-
 function CargarZonas(index){
-    // Zona0.visible = false;
     switch(index){
         case 0:
             CreaZona1();
@@ -547,12 +288,8 @@ function CargarZonas(index){
             return;
     }
 
-    forward = 0;
-    right = 0;
-    yaw = 0;
-    pitch = 0;
-    
-    window.removeEventListener("click", onClickOpciones);
+    window.addEventListener("keydown", escribirCanvas);
+    window.removeEventListener("click", onClickOpcionesPhobos);
     
 }
 
@@ -685,7 +422,7 @@ function LlegadaNaveZona1(){
         setTimeout(() => {
             Zona1.visible = false;
             window.removeEventListener("keydown", NaveMoverse);
-            addEventsPhobos();
+            addmovementEvents();
             resetZona1();
             setTimeout(() => {
                 collision = false;
@@ -726,7 +463,6 @@ function CreaZona2() {
         const x_pos = canvas_Zona2.width /2 -tamaño_simbolos/2 + (index * X_step)+ ctx_Zona2.measureText(simbolo).width/2;
         const y_pos =(canvas_Zona2.height / 2) + espacio_disponible * 0.65;
         pos_simbolos[index] = [x_pos, y_pos];
-        console.log("Posicion simbolo: " + simbolo + " X: " + x_pos + " Y: " + y_pos);
         ctx_Zona2.fillText(simbolo, x_pos, y_pos);
     });
 
@@ -803,7 +539,7 @@ function resetZona2() {
   canClick = false;
   setTimeout(() => {
     Zona2.visible = false;
-    addEventsPhobos();
+    addmovementEvents();
     Secuencia_Input = [];
     empieza_secuencia = false;
     indice_secuencia = 0;
@@ -935,16 +671,7 @@ function CreaZona5() {
     scenePhobos.add(Zona5);
 }
 
-function clearZone(zone) {
-    for (let i = zone.children.length - 1; i >= 0; i--) {
-        let obj = zone.children[i];
-        if (obj.isMesh) {
-            zone.remove(obj);
-            obj.geometry.dispose();
-            obj.material.dispose();
-        }
-    }
-}
+
 
 function checkAnswer(letter) {
     let correcto = false;
@@ -981,7 +708,7 @@ function checkAnswer(letter) {
 
 function AcabadoZona() {
     window.removeEventListener("keydown", escribirCanvas);
-        addEventsPhobos();
+        addmovementEvents();
         Zona1.visible = false;
         Zona2.visible = false;
         Zona3.visible = false;
@@ -995,7 +722,7 @@ function AcabadoZona() {
 
 //Eventos
 
-function onClickOpciones(event){
+export function onClickOpcionesPhobos(event){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, cameraPhobos);
@@ -1052,7 +779,6 @@ function ClickSimbolos(event){
         const canvasX = uv.x * canvas_Zona2.width;
         const canvasY = (1 - uv.y) * canvas_Zona2.height; 
 
-        console.log(`Clic en Canvas: X=${canvasX}, Y=${canvasY}`)
         const click = new THREE.Vector2(canvasX, canvasY);
         Simbolos_Zona2.forEach((simbolo, index) => {
             const simbolo_pos = new THREE.Vector2(pos_simbolos[index][0], pos_simbolos[index][1]);
@@ -1061,11 +787,7 @@ function ClickSimbolos(event){
             if(distance <= distancia_click){
                 Secuencia_Input.push(index);
                 animarSimbolo(index);
-                console.log(Secuencia_Input);
                 
-                console.log("Distancia: " + distance);
-                console.log("Posición simbolo "+simbolo+ " antes del mesure : "+ pos_simbolos[index][0] + " " + pos_simbolos[index][1]);
-                console.log("Posición simbolo despues del mesure: " + simbolo_pos.x + " " + simbolo_pos.y);
                 if(Secuencia_Input.length >= Correct_answer_Zona2[Difficultad].length){
                     var Text_answer = "";
                     var Text_answer_color = "";
@@ -1144,7 +866,6 @@ function escribirCanvas(event) {
     } else if (event.key === "Enter") {
         User_input = User_input.toLocaleLowerCase(); 
         User_input = User_input.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        console.log(User_input); 
         
         correcto = checkAnswer(User_input);
         User_input = "";
@@ -1189,117 +910,5 @@ function escribirCanvas(event) {
 
 
 
-//Movimiento de la cámara
-function onkeydown(event) {
-    const key = event.key;
 
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 1;
-            break;
-        case "s":
-        case "S":
-            forward = -1;
-            break;
-        case "a":
-        case "A":
-            right = 1;
-            break;
-        case "d":
-        case "D":
-            right = -1;
-            break;
-    }
-
-};
-
-function onkeyup(event) {
-    const key = event.key;
-   
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 0;
-            break;
-        case "s":
-        case "S":
-            forward = 0;
-            break;
-        case "a":
-        case "A":
-            right = 0;
-            break;
-        case "d":
-        case "D":
-            right = 0;
-            break;
-    }
-};
-
-function resize(event){
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    cameraPhobos.aspect = window.innerWidth / window.innerHeight;
-    cameraPhobos.updateProjectionMatrix();
-};
-
-function onClick(event) {
-    document.body.requestPointerLock();
-};
-
-function onPointerLockChange() {
-    if (document.pointerLockElement === document.body) {
-        document.addEventListener("mousemove", onMouseMove, false);
-    } else {
-        document.removeEventListener("mousemove", onMouseMove, false);
-    }
-};
-
-function onMouseMove(event) {
-   
-    const dx = event.movementX || 0;
-    const dy = event.movementY || 0;
-    
-    // Ajustar la rotación con la sensibilidad configurada
-    yaw -= dx * rotsensitivity;
-    pitch -= dy * rotsensitivity;
-
-    // Limitar el ángulo de pitch para que la cámara no gire al revés
-    pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
-    // Crear quaterniones para rotación en Y (yaw) y X (pitch)
-    const quaternionYaw = new THREE.Quaternion();
-    quaternionYaw.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-
-    const quaternionPitch = new THREE.Quaternion();
-    quaternionPitch.setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
-
-    // Aplicar la rotación directamente a la cámara, no al cameraHolder
-    cameraPhobos.quaternion.copy(quaternionYaw);
-    cameraPhobos.quaternion.multiply(quaternionPitch);
-};
-
-function addEventsPhobos(){
-    window.addEventListener("resize", resize);
-    window.addEventListener("keydown", onkeydown);
-    window.addEventListener("keyup", onkeyup);
-    window.addEventListener("click", onClick);
-    document.addEventListener("pointerlockchange", onPointerLockChange);
-
-}
-
-function removeEventsPhobos(){
-    window.removeEventListener("resize", resize);
-    window.removeEventListener("keydown", onkeydown);
-    window.removeEventListener("keyup", onkeyup);
-    
-    document.removeEventListener("pointerlockchange", onPointerLockChange);
-}
-
-function removemovementEvents(){
-    window.removeEventListener("keydown", onkeydown);
-    window.removeEventListener("keyup", onkeyup);
-    window.removeEventListener("click", onClick);
-    document.exitPointerLock();
-}
-
-export {CreateScenePhobos, animateScenePhobos, addEventsPhobos, removeEventsPhobos};
+export {CreateScenePhobos, animateScenePhobos};

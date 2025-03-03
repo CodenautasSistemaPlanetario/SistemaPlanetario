@@ -27,15 +27,9 @@ const moonData = [
 
 
 //Movimiento de la cámara
-var camforward, camright;
+var camforward ;
 var camspeed = 4;
-var forward = 0;
-var right = 0;
-var rotsensitivity = 0.001;
-let yaw=0;
-let pitch=0;
 var camCollisionSensitive = 60; //Suvidad con la que la camara colisiona con los planetas
-var collision = false;
 
 
 let alreadyplayed = false;
@@ -49,7 +43,7 @@ var worldPos = new THREE.Vector3();
 let checkedThisFrame = false;
 
 
-addEventsPlanets();
+// addEventsPlanets();
 function CreateScenePlanets(globalrenderer) {
     //Clock
     clock = new THREE.Clock();
@@ -68,13 +62,6 @@ function CreateScenePlanets(globalrenderer) {
 
     renderer = globalrenderer;
    
-
-
-    //Movimento de la cámara
-    camforward = new THREE.Vector3();
-    cameraPlanets.getWorldDirection(camforward);
-    camright = new THREE.Vector3();
-    camright.crossVectors(cameraPlanets.up, camforward).normalize();
 
 
     // Crear geometría
@@ -205,7 +192,6 @@ function animateScenePlanets() {
 
     const dt = clock.getDelta();
 
-    const elapsedTime = clock.getElapsedTime();
 
     
     //Planet Movement
@@ -231,23 +217,7 @@ function animateScenePlanets() {
     });
 
     
-    //Camera Movement
-    
-  
-    cameraPlanets.updateProjectionMatrix();
-    
-    cameraPlanets.getWorldDirection(camforward);
-    camright.crossVectors(cameraPlanets.up, camforward).normalize();
 
-    
-    if(!collision){
-        if (forward!=0) {
-            cameraPlanets.position.add(camforward.clone().multiplyScalar(forward * dt *camspeed));
-        }
-        if (right!=0) {
-            cameraPlanets.position.add(camright.clone().multiplyScalar(right * dt *camspeed));
-        }
-    }   
 
 
     planets.forEach((planet) => planet.updateMatrixWorld(true));
@@ -292,13 +262,13 @@ function CheckPlanetsCollisions() {
 }
 
 function CheckSunCollision(){
-    collision = false;
     const distance = cameraPlanets.position.distanceTo(sun.position);
     if (distance < sun.geometry.parameters.radius + cameraPlanets.near + 0.2) {
         const dt = clock.getDelta();
+        camforward = new THREE.Vector3();
+        cameraPlanets.getWorldDirection(camforward);
         const newpos = cameraPlanets.position.clone().add(camforward.clone().multiplyScalar(-camspeed));
         cameraPlanets.position.lerp(newpos, dt * camCollisionSensitive);
-        collision = true;
     }
 }
 
@@ -312,7 +282,9 @@ function CheckMoonCollision(){
         const distance = cameraWorldPos.distanceTo(moonWorldPos);
 
         if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
-            changeScene("sceneLuna");
+            const nuevascene ="scene"+moon.name;
+            console.log(nuevascene);
+            changeScene(nuevascene);
             document.exitPointerLock();
         }
     });
@@ -322,123 +294,9 @@ function CheckMoonCollision(){
 function rebootScene(){
     cameraPlanets.position.set(0, 5, 8);
     cameraPlanets.rotation.set(0, 0, 0);
-    forward = 0;
-    right = 0;
-    yaw = 0;
-    pitch = 0;
-    collision = false;
+    // resetMovimientoCamara();
 }
 
-// Eventos
-function addEventsPlanets(){
-    window.addEventListener("resize", resize);
-    window.addEventListener("keydown", onkeydown);
-    window.addEventListener("keyup", onkeyup);
-    window.addEventListener("click", onClick);
-    document.addEventListener("pointerlockchange", onPointerLockChange);
 
-}
 
-function removeEventsPlanets(){
-    window.removeEventListener("resize", resize);
-    window.removeEventListener("keydown", onkeydown);
-    window.removeEventListener("keyup", onkeyup);
-    window.removeEventListener("click", onClick);
-    document.removeEventListener("pointerlockchange", onPointerLockChange);
-    alreadyplayed = true;
-
-}
-// Redimensionar
-function resize(event){
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    cameraPlanets.aspect = window.innerWidth / window.innerHeight;
-    cameraPlanets.updateProjectionMatrix();
-};
-
-// Teclado
-function onkeydown(event) {
-    const key = event.key;
-
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 1;
-            break;
-        case "s":
-        case "S":
-            forward = -1;
-            break;
-        case "a":
-        case "A":
-            right = 1;
-            break;
-        case "d":
-        case "D":
-            right = -1;
-            break;
-    }
-
-};
-
-function onkeyup(event) {
-    const key = event.key;
-   
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 0;
-            break;
-        case "s":
-        case "S":
-            forward = 0;
-            break;
-        case "a":
-        case "A":
-            right = 0;
-            break;
-        case "d":
-        case "D":
-            right = 0;
-            break;
-    }
-
-};
-
-// Activar el modo de captura del cursor al hacer clic
-function onClick(event) {
-    document.body.requestPointerLock();
-};
-
-// Escuchar cambios en el estado del Pointer Lock
-function onPointerLockChange() {
-    if (document.pointerLockElement === document.body) {
-        document.addEventListener("mousemove", onMouseMove, false);
-    } else {
-        document.removeEventListener("mousemove", onMouseMove, false);
-    }
-};
-
-function onMouseMove(event) {
-   
-    const dx = event.movementX || 0;
-    const dy = event.movementY || 0;
-    
-    // Ajustar la rotación con la sensibilidad configurada
-    yaw -= dx * rotsensitivity;
-    pitch -= dy * rotsensitivity;
-
-    // Limitar el ángulo de pitch para que la cámara no gire al revés
-    pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
-    // Crear quaterniones para rotación en Y (yaw) y X (pitch)
-    const quaternionYaw = new THREE.Quaternion();
-    quaternionYaw.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-
-    const quaternionPitch = new THREE.Quaternion();
-    quaternionPitch.setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
-
-    // Aplicar la rotación directamente a la cámara, no al cameraHolder
-    cameraPlanets.quaternion.copy(quaternionYaw);
-    cameraPlanets.quaternion.multiply(quaternionPitch);
-};
-
-export { CreateScenePlanets,animateScenePlanets,addEventsPlanets,removeEventsPlanets };
+export { CreateScenePlanets,animateScenePlanets};

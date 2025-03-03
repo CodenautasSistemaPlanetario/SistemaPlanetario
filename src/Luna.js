@@ -1,11 +1,11 @@
 import * as THREE from 'three';
-import {changeScene} from "../Controlador.js";
+import {changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents} from "../Controlador.js";
 import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas } from './FucionesComunesLunas.js';
+
 
 //Texturas
-const path = "./img/Stars/";
-const TextureCubeLoader = new THREE.CubeTextureLoader();
 const TextureLoader = new THREE.TextureLoader();
 const Fontloader = new FontLoader();
 const FontName = './font/Roboto_Regular.json';
@@ -20,18 +20,9 @@ const Land_texture_height = TextureLoader.load(Groundpath + "Displacement.jpg");
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
-var clock;
 
 var sceneLuna,cameraLuna, renderer;
 
-
-var cameraspeed = 2;
-var forward = 0;
-var right = 0;
-var camforward, camright;
-var rotsensitivity = 0.0005;
-let yaw=0;
-let pitch=0;
 
 var empieza_moverse = false;
 var collision = false;
@@ -47,7 +38,6 @@ const Zona2 = new THREE.Group();
 const Zona3 = new THREE.Group();
 const Zona4 = new THREE.Group();
 const Zona5 = new THREE.Group();
-var LastY_Zona1, LastY_Zona2, LastY_Zona3, LastY_Zona4, LastY_Zona5;
 var LastY_Global;  
 
 
@@ -203,17 +193,11 @@ function CreateSceneLuna(globalrenderer)
     cube.position.set(0, 0, 0);
     sceneLuna.add(cube);
 
-
-
-    // Cámara
     cameraLuna.position.set(0, 2, 0);
 
-    clock = new THREE.Clock();
-    camforward = new THREE.Vector3();
-    camright = new THREE.Vector3();
 
-    CrearSkysphere();
-    CrearZonas();
+    CrearSkysphere(sceneLuna);
+    CrearZonas(ZonasJugables,sceneLuna,Zona0,Zona1,Zona2,Zona3,Zona4,Zona5);
     
 
 
@@ -221,43 +205,6 @@ function CreateSceneLuna(globalrenderer)
 }
 
 //Geometria
-
-function CrearSkysphere(){  
-    TextureCubeLoader.setPath(path);
-    const texture = TextureCubeLoader.load([
-        'px.jpg', // Positivo en X (derecha)
-        'nx.jpg', // Negativo en X (izquierda)
-        'py.jpg', // Positivo en Y (arriba)
-        'ny.jpg', // Negativo en Y (abajo)
-        'pz.jpg', // Positivo en Z (frente)
-        'nz.jpg'  // Negativo en Z (atrás)
-    ]);
-
-        sceneLuna.background = texture;
-}
-
-function CrearZonas(){
-    CrearZona0();   
-    Zona1.position.set(20,0,0);//Derecha
-    Zona2.position.set(6.18,0,19.02);//Izquierda
-    Zona3.position.set(-16.18,0,11.76);//Delante
-    Zona4.position.set(-16.18,0,-11.76);//Atrás
-    Zona5.position.set(6.18,0,-19.02);//Atrás
-    ZonasJugables.push(Zona1.position);
-    ZonasJugables.push(Zona2.position);
-    ZonasJugables.push(Zona3.position);
-    ZonasJugables.push(Zona4.position);
-    ZonasJugables.push(Zona5.position);
-
-    ZonasJugables.forEach(zona => {
-        const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-        const material = new THREE.MeshBasicMaterial({ color: Zone_box_color });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.set(zona.x, 0, zona.z);
-        sceneLuna.add(cube);
-    });
-
-}
 
 function animateSceneLunas() {
     
@@ -267,28 +214,9 @@ function animateSceneLunas() {
     }
 
 
-    const dt = clock.getDelta();
-
-    
-    cameraLuna.updateProjectionMatrix();
-    
-    cameraLuna.getWorldDirection(camforward);
-    camright.crossVectors(cameraLuna.up, camforward).normalize();
-
-    if (forward!=0) {
-        camforward.y = 0;
-        camforward.normalize();
-        cameraLuna.position.add(camforward.clone().multiplyScalar(forward * dt *cameraspeed));
-    }
-    if (right!=0) {
-        camright.y = 0;
-        camright.normalize();
-        cameraLuna.position.add(camright.clone().multiplyScalar(right * dt *cameraspeed));
-    }
-
-    CheckVuelta();
+    CheckVuelta(cameraLuna);
     CheckLlegadaZonas();
-    CheckBordes();
+    CheckBordes(cameraLuna);
     
 
     renderer.render(sceneLuna, cameraLuna);
@@ -308,41 +236,12 @@ function reiniciar(){
     Zona4.visible = false;
     Zona5.visible = false;
 
-    yaw = 0;
-    pitch = 0;
-    forward = 0;
-    right = 0;
+    resetMovimientoCamara();
 
 }
 
 //Funciones
-function CheckVuelta(){
-    const pos_zona_elevada = new THREE.Vector3(0, cameraLuna.position.y, 0);
-    const distance = cameraLuna.position.distanceTo(pos_zona_elevada);
 
-    if(!empieza_moverse && distance >= 1.3){
-        empieza_moverse = true;
-    } else if(empieza_moverse && distance <= 1){
-        ya_jugado = true;
-        changeScene("scenePlanets");
-        empieza_moverse = false;
-    }
-}
-
-function CheckBordes(){
-    if(cameraLuna.position.x >= 30){
-        cameraLuna.position.x = 19.9;
-    }
-    if(cameraLuna.position.x <= -30){
-        cameraLuna.position.x = -19.9;
-    }
-    if(cameraLuna.position.z >= 30){
-        cameraLuna.position.z = 19.9;
-    }
-    if(cameraLuna.position.z <= -30){
-        cameraLuna.position.z = -19.9;
-    }
-}
 
 function CheckLlegadaZonas(){
     if(!collision){
@@ -351,7 +250,8 @@ function CheckLlegadaZonas(){
             const distance = cameraLuna.position.distanceTo(pos_zona_elevada);
     
             if(distance <= dist_colision_zonas){
-                CargarZona0(index);
+                Index_zona = index;
+                CargarZona0(index,Zona0,Zona1,Zona2,Zona3,Zona4,Zona5,cameraLuna);
             }
         });
     }
@@ -359,121 +259,10 @@ function CheckLlegadaZonas(){
 }
 
 
-
-function CrearZona0() {
-    // Plano Background
-    const geometry = new THREE.PlaneGeometry(10, 5);
-    const material = new THREE.MeshBasicMaterial({ 
-        color: 0x000000, 
-        opacity: 0.5, 
-        transparent: true, 
-        side: THREE.DoubleSide  // Permite ver el plano desde ambos lados
-    });
-    const background = new THREE.Mesh(geometry, material);
-    background.position.set(0, 2, -4);
-    Zona0.add(background);
-
-    // Texto principal
-    Fontloader.load(FontName, function (font) {
-        const textGeometry = new TextGeometry(Texto_Zona0, {
-            font: font,
-            size: FontSizeOpciones,
-            height: FontHeightOpciones,
-            depth: FontDepthOpciones
-        });
-
-        textGeometry.computeBoundingBox();
-        textGeometry.center();
-
-        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-
-        var textMesh = new THREE.Mesh(textGeometry, textMaterial);
-        textMesh.position.set(0, 2, -4);
-
-        Zona0.add(textMesh);
-    });
-
-    // Botones
-    Opciones.forEach((option, index) => {
-        const geometry = new THREE.BoxGeometry(3, 1, 0.1);
-        const material = new THREE.MeshBasicMaterial({ 
-            color: Button_Color, 
-            side: THREE.DoubleSide  // Asegura que las caras sean visibles desde ambos lados
-        });
-        const button = new THREE.Mesh(geometry, material);
-
-        button.position.set(-3 + (6 * index), 1, -4);
-        button.userData = { index };
-        Zona0.add(button);
-
-        // Texto dentro del botón
-        Fontloader.load(FontName, function (font) {
-            const textGeometry = new TextGeometry(option, {
-                font: font,
-                size: FontSizeOpciones * 0.5, 
-                height: FontHeightOpciones * 0.5,
-                depth: FontDepthOpciones
-            });
-
-            textGeometry.computeBoundingBox();
-            textGeometry.center();
-
-            const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorOpciones });
-            const textMesh = new THREE.Mesh(textGeometry, textMaterial);
-
-            textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06); // Mover texto hacia adelante
-            Zona0.add(textMesh);
-        });
-    });
-
-    Zona0.visible = false;
-    sceneLuna.add(Zona0);
-}
-
-function CargarZona0(index){
-    var position = Zona0.position;
-    Index_zona = index;
-    switch(index){
-        case 0:
-            position = Zona1.position;
-            break;
-       case 1:
-            position = Zona2.position;
-            break;
-        case 2:
-            position = Zona3.position;
-            break;
-        case 3:
-            position = Zona4.position;
-            break;
-        case 4:
-            position = Zona5.position;
-            break;
-        default:
-            return;
-
-    }
-    Zona0.position.set(position.x, position.y, position.z);
-    Zona0.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona0.children[0].getWorldPosition(pos_global);
-    
-    cameraLuna.position.set(Zona0.position.x, 2, Zona0.position.z);
-    cameraLuna.lookAt(pos_global);
-
-    collision = true;
-    removemovementEvents();
-    forward = 0;
-    right = 0;
-    yaw = 0;
-    pitch = 0;
-    window.addEventListener("click", onClickOpciones);
-}
-
 function CrearCanvasTexture(indice) {
     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
-    window.removeEventListener("click", onClickOpciones);
+    window.removeEventListener("click", onClickOpcionesLuna);
 
     switch (indice) {
         case 0:
@@ -574,49 +363,11 @@ function CrearCanvasTexture(indice) {
     }
 
     collision = true;
-        removemovementEvents();
-        forward = 0;
-        right = 0;
-        yaw = 0;
-        pitch = 0;
-        window.addEventListener("keydown", escribirCanvas);
+        // removemovementEvents();
+    resetMovimientoCamara();
+     window.addEventListener("keydown", escribirCanvas);
 }
 
-function clearZone(zone) {
-    for (let i = zone.children.length - 1; i >= 0; i--) {
-        let obj = zone.children[i];
-        if (obj.isMesh) {
-            zone.remove(obj);
-            obj.geometry.dispose();
-            obj.material.dispose();
-        }
-    }
-}
-
-function DividirLineas(ctx, text, x, y, maxWidth, lineHeight) {
-    let words = text.split(" ");
-    let line = "";
-    let lineCount = 0; // Contador de líneas
-
-    for (let i = 0; i < words.length; i++) {
-        let testLine = line + words[i] + " ";
-        let metrics = ctx.measureText(testLine);
-        let testWidth = metrics.width;
-
-        if (testWidth > maxWidth && i > 0) {
-            ctx.fillText(line, x, y);
-            line = words[i] + " ";
-            y += lineHeight;
-            lineCount++; // Aumentar el contador de líneas
-        } else {
-            line = testLine;
-        }
-    }
-    ctx.fillText(line, x, y);
-    lineCount++; // Incluir la última línea también
-
-    return lineCount * lineHeight; // Devolver el espacio utilizado
-}
 
 function checkAnswer(letter) {
     let correcto = false;
@@ -659,7 +410,7 @@ function checkAnswer(letter) {
 
 function AcabadoZona(){
     window.removeEventListener("keydown", escribirCanvas);
-    addEventsLuna();
+    addmovementEvents();
     Zona1.visible = false;
     Zona2.visible = false;
     Zona3.visible = false;
@@ -672,65 +423,7 @@ function AcabadoZona(){
 
 
 //Eventos
-// Teclado
-function onkeydown(event) {
-    const key = event.key;
-
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 1;
-            break;
-        case "s":
-        case "S":
-            forward = -1;
-            break;
-        case "a":
-        case "A":
-            right = 1;
-            break;
-        case "d":
-        case "D":
-            right = -1;
-            break;
-    }
-
-}
-
-function onkeyup(event) {
-    const key = event.key;
-   
-    switch (key) {
-        case "w":
-        case "W":
-            forward = 0;
-            break;
-        case "s":
-        case "S":
-            forward = 0;
-            break;
-        case "a":
-        case "A":
-            right = 0;
-            break;
-        case "d":
-        case "D":
-            right = 0;
-            break;
-    }
-}
-
-function resize(event){
-    renderer.setSize(window.innerWidth, window.innerHeight);
-    cameraLuna.aspect = window.innerWidth / window.innerHeight;
-    cameraLuna.updateProjectionMatrix();
-};
-
-function onClick(event) {
-    document.body.requestPointerLock();
-};
-
-function onClickOpciones(event){
+export function onClickOpcionesLuna(event){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, cameraLuna);
@@ -745,37 +438,6 @@ function onClickOpciones(event){
         }
     }
 }
-
-function onPointerLockChange() {
-    if (document.pointerLockElement === document.body) {
-        document.addEventListener("mousemove", onMouseMove, false);
-    } else {
-        document.removeEventListener("mousemove", onMouseMove, false);
-    }
-};
-
-function onMouseMove(event) {
-   
-    const dx = event.movementX || 0;
-    const dy = event.movementY || 0;
-    
-    // Ajustar la rotación con la sensibilidad configurada
-    yaw -= dx * rotsensitivity;
-    pitch -= dy * rotsensitivity;
-
-    // Limitar el ángulo de pitch para que la cámara no gire al revés
-    pitch = Math.max(-Math.PI / 2, Math.min(Math.PI / 2, pitch));
-    // Crear quaterniones para rotación en Y (yaw) y X (pitch)
-    const quaternionYaw = new THREE.Quaternion();
-    quaternionYaw.setFromAxisAngle(new THREE.Vector3(0, 1, 0), yaw);
-
-    const quaternionPitch = new THREE.Quaternion();
-    quaternionPitch.setFromAxisAngle(new THREE.Vector3(1, 0, 0), pitch);
-
-    // Aplicar la rotación directamente a la cámara, no al cameraHolder
-    cameraLuna.quaternion.copy(quaternionYaw);
-    cameraLuna.quaternion.multiply(quaternionPitch);
-};
 
 
 function escribirCanvas(event) {
@@ -872,32 +534,7 @@ function escribirCanvas(event) {
     local_texture.needsUpdate = true;
 }
 
-function addEventsLuna(){
-    window.addEventListener("resize", resize);
-    window.addEventListener("keydown", onkeydown);
-    window.addEventListener("keyup", onkeyup);
-    window.addEventListener("click", onClick);
-    document.addEventListener("pointerlockchange", onPointerLockChange);
 
-}
-
-
-function removeEventsLuna(){
-    window.removeEventListener("resize", resize);
-    window.removeEventListener("keydown", onkeydown);
-    window.removeEventListener("keyup", onkeyup);
-    
-    document.removeEventListener("pointerlockchange", onPointerLockChange);
-}
-
-function removemovementEvents(){
-    window.removeEventListener("keydown", onkeydown);
-    window.removeEventListener("keyup", onkeyup);
-    window.removeEventListener("click", onClick);
-    document.exitPointerLock();
-}
-
-
-export { CreateSceneLuna, animateSceneLunas, addEventsLuna, removeEventsLuna };
+export { CreateSceneLuna, animateSceneLunas};
 
 
