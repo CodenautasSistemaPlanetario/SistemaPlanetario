@@ -2,14 +2,16 @@ import * as THREE from 'three';
 import { changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents } from '../Controlador.js';
 import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
-import {onClickOpcionesPhobos,escribirCanvas } from './Phobos.js';
-import { onClickOpcionesDeimos } from './Deimos.js';
-import { onClickOpcionesLuna } from './Luna.js';
+import {onClickOpcionesPhobos } from './Phobos.js';
+import { onClickOpcionesDeimos,ZonaParamsDeimos } from './Deimos.js';
+import { onClickOpcionesLuna,ZonasParamsLuna } from './Luna.js';
 
 const path = "./img/Stars/";
 const TextureCubeLoader = new THREE.CubeTextureLoader();
 
 var empieza_moverse = false;
+
+const Zona0 = new THREE.Group();
 
 //Parametros Zona 0
 const Opciones = ["Fácil", "Difícil"];
@@ -26,6 +28,15 @@ const FontName = './font/Roboto_Regular.json';
 const Zone_box_color = 0xff0000;
 var lunaActiva ="";
 let Index_zona = -1;
+let Zona_Params_Activo = [];
+let User_input = "";
+let LastY_Global = 0;
+let Can_write = true;
+let collision = false;
+let ya_jugado = false;
+const Text_color =" #ffffff";
+const Background_color =" #92c5fc";
+let Difficultad_Zona;
 
 
 const dist_colision_zonas = 1.5;
@@ -83,7 +94,23 @@ export function CheckVuelta(camara){
     }
 }
 
-export function CheckLlegadaZonas(ZonasJugables, camera, Zona0, collision) {
+export function reiniciar(camara,Zona0){
+    camara.position.set(0, 2, 0);
+    camara.rotation.set(0, 0, 0);
+
+    empieza_moverse = false;
+    collision = false;
+
+    Zona0.visible = false;
+    Zona_Params_Activo[0].zona.visible = false;
+    Zona_Params_Activo[1].zona.visible = false;
+    Zona_Params_Activo[2].zona.visible = false;
+    Zona_Params_Activo[3].zona.visible = false;
+    Zona_Params_Activo[4].zona.visible = false;
+
+}
+
+export function CheckLlegadaZonas(ZonasJugables, camera, Zona0) {
     
 
     if (!collision) {
@@ -94,13 +121,14 @@ export function CheckLlegadaZonas(ZonasJugables, camera, Zona0, collision) {
 
             if (distance <= dist_colision_zonas) {
                 Index_zona = index;
-                collision = CargarZona0(Zona0, zona, camera);
+                collision = true;
+                CargarZona0(Zona0, zona, camera);
                 break; // Salimos del bucle al encontrar la primera colisión
             }
         }
     }
 
-    return [collision, Index_zona];
+    
 }
 
 
@@ -199,6 +227,15 @@ export function CrearZonas(ZonasJugables,scene,Zona0,Zona1,Zona2,Zona3,Zona4,Zon
 
 export function setLunaActiva(luna){
     lunaActiva = luna;
+    switch(lunaActiva)
+    {
+        case "deimos":
+            Zona_Params_Activo = ZonaParamsDeimos;
+            break;
+        case "luna":
+            Zona_Params_Activo = ZonasParamsLuna;
+            break;
+    }
 }
 
 function CargarZona0(Zona0,position,camera){
@@ -228,7 +265,6 @@ function CargarZona0(Zona0,position,camera){
             break;
     }
 
-    return true;
 }
 
 export function DividirLineas(ctx, text, x, y, width, height) {
@@ -252,15 +288,161 @@ export function DividirLineas(ctx, text, x, y, width, height) {
 }
 
 
-export function AcabadoZona(Zona1,Zona2,Zona3,Zona4,Zona5){
+export function AcabadoZona(){
     window.removeEventListener("keydown", escribirCanvas);
     addmovementEvents();
-    Zona1.visible = false;
-    Zona2.visible = false;
-    Zona3.visible = false;
-    Zona4.visible = false;
-    Zona5.visible = false;
+    Zona_Params_Activo.forEach(element => {
+        element.zona.visible = false;
+    });
     setTimeout(() => {
-        return collision = false;
+        collision = false;
     }, 5000);
+}
+
+function checkAnswer(letter) {
+    let correcto = false;
+    let local_correct_answer = "";
+    local_correct_answer = Zona_Params_Activo[Index_zona].Correct_answer[Difficultad_Zona];
+
+    if (letter === local_correct_answer) {
+        Can_write = false; // Bloquear clics temporalmente
+        correcto = true;
+        setTimeout(() => {
+            Can_write = true; // Reactivar clics después de 2 segundos
+            AcabadoZona();
+        }, 2000);
+    } else {
+        Can_write = false; // Bloquear clics temporalmente
+        correcto = false;
+        setTimeout(() => {
+            Can_write = true;
+        }, 2000);
+    }
+
+    return correcto;
+}
+
+export function CrearCanvasTexture(scene,camara,Difficultad) {
+    let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
+
+    window.removeEventListener("click", onClickOpcionesDeimos);
+
+    const zonaParams = Zona_Params_Activo[Index_zona];
+    if (!zonaParams) return;
+
+    zona = zonaParams.zona;
+    tituloreto = zonaParams.tituloReto;
+    canvas = zonaParams.canvas;
+    ctx = zonaParams.ctx;
+    lineas = zonaParams.Lineas[Difficultad];
+    Difficultad_Zona = Difficultad;
+
+    clearZone(zona);
+
+    canvas.width = 1024;
+    canvas.height = 512;
+
+    ctx.fillStyle = Background_color;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    ctx.fillStyle = Text_color;
+    ctx.font = "50px Arial";
+    ctx.fillText(tituloreto, 10, 50);
+
+    ctx.font = "30px Arial";
+    let startY = 100;
+    let Height = 35;
+    for (let linea of lineas) {
+        startY += DividirLineas(ctx, linea, 10, startY, canvas.width - 20, Height);
+    }
+
+    LastY_Global = startY;
+
+    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
+    backgroundtexture = new THREE.CanvasTexture(canvas);
+    const backgroundMaterial = new THREE.MeshBasicMaterial({
+        map: backgroundtexture,
+        opacity: 0.8,
+        transparent: true,
+    });
+
+    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
+    backgroundMesh.position.set(0, 2, -4);
+    zona.add(backgroundMesh);
+
+    zona.visible = true;
+    const pos_global = new THREE.Vector3();
+    zona.children[0].getWorldPosition(pos_global);
+    camara.lookAt(pos_global);
+    scene.add(zona);
+
+    Zona_Params_Activo[Index_zona].backgroundtexture = backgroundtexture;
+    Zona_Params_Activo[Index_zona].ctx = ctx;
+
+    collision = true;
+    window.addEventListener("keydown", escribirCanvas);
+}
+
+function escribirCanvas(event) {
+    let correcto = null;
+    let texto_check = "";
+    let color_check = "";
+
+    let local_canvas;
+    let local_ctx;
+    let local_texture
+
+    const zonaParams = Zona_Params_Activo[Index_zona];
+    if (!zonaParams) return;
+
+    local_canvas = zonaParams.canvas;
+    local_ctx = zonaParams.ctx;
+    local_texture = zonaParams.backgroundtexture;
+    if (!Can_write) {
+        return;
+    }
+
+    if (event.key === "Backspace") {
+        User_input = User_input.slice(0, -1);
+        texto_check = "";
+    } else if (event.key.length === 1) {
+        User_input += event.key;
+        texto_check = "";
+    } else if (event.key === "Enter") {
+        correcto = checkAnswer(User_input);
+        User_input = "";
+        if (correcto) {
+            texto_check = "Correcto";
+            color_check = "#00ff00";
+        } else if (!correcto) {
+            texto_check = "Incorrecto";
+            color_check = "#ff0000";
+        }
+    }
+
+    const espacio_disponible = local_canvas.height - LastY_Global;
+    local_ctx.fillStyle = Background_color;
+    local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, espacio_disponible);
+
+    local_ctx.fillStyle = Text_color;
+
+    let userinput_width = local_ctx.measureText(User_input).width;
+    let userinput_x = (local_canvas.width - userinput_width) / 2;
+    let userinput_y = LastY_Global + (espacio_disponible / 4);
+    local_ctx.fillText(User_input, userinput_x, userinput_y);
+
+    if (correcto != null) {
+        local_ctx.fillStyle = color_check;
+        let texto_width = local_ctx.measureText(texto_check).width;
+        let texto_x = (local_canvas.width - texto_width) / 2;
+        local_ctx.fillText(texto_check, texto_x, userinput_y);
+        setTimeout(() => {
+            texto_check = "";
+            color_check = "";
+            local_ctx.fillStyle = Background_color;
+            local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, 90);
+            local_texture.needsUpdate = true;
+        }, 2000);
+    }
+
+    local_texture.needsUpdate = true;
 }

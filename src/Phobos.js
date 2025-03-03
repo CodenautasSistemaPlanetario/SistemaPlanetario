@@ -235,7 +235,7 @@ function animateScenePhobos() {
 
 
     CheckVuelta(cameraPhobos);
-    [collision,Index_zona] = CheckLlegadaZonas(ZonasJugables,cameraPhobos,Zona0,collision);
+    CheckLlegadaZonas(ZonasJugables,cameraPhobos,Zona0);
     CheckBordes(cameraPhobos);
 
     if(gameActive_Zona1){
@@ -464,8 +464,6 @@ function CreaZona2() {
         pos_simbolos[index] = [x_pos, y_pos];
         ctx_Zona2.fillText(simbolo, x_pos, y_pos);
     });
-
-    
 
     backgroundtexture_Zona2 = new THREE.CanvasTexture(canvas_Zona2);
 
@@ -706,7 +704,6 @@ function checkAnswer(letter) {
 }
 
 //Eventos
-
 export function onClickOpcionesPhobos(event){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
