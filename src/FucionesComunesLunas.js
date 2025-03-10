@@ -248,7 +248,7 @@ function CargarZona0(Zona0,position,camera){
     switch(lunaActiva)
     {
         case "phobos":
-            window.addEventListener("click",onClickOpcionesPhobos);
+            window.addEventListener("click", (event) => onClickOpcionesPhobos(event, Index_zona));
             break;
         case "deimos":
             window.addEventListener("click",onClickOpcionesDeimos);
