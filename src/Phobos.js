@@ -260,6 +260,7 @@ function animateScenePhobos() {
 
 
 function CargarZonas(index){
+    console.log(index);
     switch(index){
         case 0:
             CreaZona1();

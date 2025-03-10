@@ -54,7 +54,6 @@ function changeScene(newScene){
     if(newScene == "scenePlanets"){
         scene = scenePlanets;
         camera = cameraPlanets;
-        EstoyScenePlanets = true;
         Activeanimate = animateScenePlanets;
     }else if(newScene == "sceneCuestions"){
         scene = sceneCuestions;
@@ -78,11 +77,10 @@ function changeScene(newScene){
         Activeanimate = animateSceneDeimos;
     }
 
-
-
     if(newScene == "scenePlanets" && EstoyScenePlanets == false){
-        EstoyScenePlanets = true;
         camspeed = 4;
+        EstoyScenePlanets = true;
+        
     }
     else if(newScene != "scenePlanets" && EstoyScenePlanets == true){
         EstoyScenePlanets = false;
@@ -241,7 +239,6 @@ function onMouseMove(event) {
     camera.quaternion.copy(quaternionYaw);
     camera.quaternion.multiply(quaternionPitch);
 };
-
 
 function addEvents(){
     window.addEventListener("resize", resize);

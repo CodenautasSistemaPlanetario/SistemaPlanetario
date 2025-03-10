@@ -101,13 +101,6 @@ export function reiniciar(camara,Zona0){
     empieza_moverse = false;
     collision = false;
 
-    Zona0.visible = false;
-    Zona_Params_Activo[0].zona.visible = false;
-    Zona_Params_Activo[1].zona.visible = false;
-    Zona_Params_Activo[2].zona.visible = false;
-    Zona_Params_Activo[3].zona.visible = false;
-    Zona_Params_Activo[4].zona.visible = false;
-
 }
 
 export function CheckLlegadaZonas(ZonasJugables, camera, Zona0) {
@@ -331,7 +324,7 @@ export function CrearCanvasTexture(scene,camara,Difficultad) {
     if (!zonaParams) return;
 
     zona = zonaParams.zona;
-    tituloreto = zonaParams.tituloReto;
+    tituloreto = zonaParams.titulo;
     canvas = zonaParams.canvas;
     ctx = zonaParams.ctx;
     lineas = zonaParams.Lineas[Difficultad];

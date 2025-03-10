@@ -32,23 +32,17 @@ const Zona3 = new THREE.Group();
 const Zona4 = new THREE.Group();
 const Zona5 = new THREE.Group();
 
-
-//Parametros elección dificultad (Zona 0)
-var Index_zona;
-
 //Parametros comunes Zonas
-var Can_write = true;
-const Text_color =" #ffffff";
-const Background_color =" #92c5fc";
-let User_input = "";
+var Difficultad;
 
 export const ZonasParamsLuna = [
     {
-        correctAnswers: ["12", "47"],
+        zona: Zona1,
+        Correct_answer: ["12", "47"],
         canvas: document.createElement("canvas"),
         ctx: null,
-        backgroundTexture: null,
-        lines: [
+        backgroundtexture: null,
+        Lineas: [
             ["🔍 Desafío: Los astronautas descubren una pantalla con números que representan las estrellas de una constelación, pero hay un número que falta.",
                 "📝 Código en pantalla: 3 - 6 - 9 - ? - 15",
                 "🤖 Pregunta: ¿Cuál es el número que falta?"],
@@ -56,14 +50,15 @@ export const ZonasParamsLuna = [
                 "📝 Código en pantalla: 2 - 5 - 11 - 23 - ?",
                 "🤖 Pregunta: ¿Cuál es el número que falta?"]
         ],
-        title: "🛰 Reto 1: Código de las Constelaciones⭐"
+        titulo: "🛰 Reto 1: Código de las Constelaciones⭐"
     },
     {
-        correctAnswers: ["81", "133"],
+        zona: Zona2,
+        Correct_answer: ["81", "133"],
         canvas: document.createElement("canvas"),
         ctx: null,
-        backgroundTexture: null,
-        lines: [
+        backgroundtexture: null,
+        Lineas: [
             ["🔍 Desafío: Un robot de la nave solo abrirá la puerta si los astronautas resuelven esta operación basada en el número de lunas de algunos planetas:",
                 "Júpiter tiene 79 lunas.          Saturno tiene 83 lunas.",
                 "Venus no tiene lunas.            Marte tiene 2 lunas.",
@@ -73,14 +68,15 @@ export const ZonasParamsLuna = [
                 "Urano tiene 27 lunas.            Marte tiene 2 lunas.",
                 "🤖 Pregunta: Si restamos las lunas de Marte y Urano a la suma de Júpiter y Saturno, ¿cuántas lunas quedan?"]
         ],
-        title: "🌍 Reto 2: La Suma de los Planetas 🪐"
+        titulo: "🌍 Reto 2: La Suma de los Planetas 🪐"
     },
     {
-        correctAnswers: ["(5,8)", "(5,17)"],
+        zona: Zona3,
+        Correct_answer: ["(5,8)", "(5,17)"],
         canvas: document.createElement("canvas"),
         ctx: null,
-        backgroundTexture: null,
-        lines: [
+        backgroundtexture: null,
+        Lineas: [
             ["🔍 Desafío: Los astronautas encuentran un mapa estelar con estas coordenadas:",
                 "(2,5) 🌕 (3,6) 🛸 (4,7) 🌎 (?)",
                 "¿Qué números tendran las coordenadas faltantes? Escribelo con el siguiente formato: (x,y)"],
@@ -88,14 +84,15 @@ export const ZonasParamsLuna = [
                 "(2,5) 🌕 (3,8) 🛸 (4,12) 🌎 (?)",
                 "🤖 Pregunta: ¿Cuál es la siguiente coordenada? Escribelo con el siguiente formato: (x,y)"]
         ],
-        title: "🚀 Reto 3: Coordenadas Espaciales 📡"
+        titulo: "🚀 Reto 3: Coordenadas Espaciales 📡"
     },
     {
-        correctAnswers: ["12", "60"],
+        zona: Zona4,
+        Correct_answer: ["12", "60"],
         canvas: document.createElement("canvas"),
         ctx: null,
-        backgroundTexture: null,
-        lines: [
+        backgroundtexture: null,
+        Lineas: [
             ["🔍 Desafío: La nave necesita recargar energía solar y tenemos un panel solar para hacerlo. El panel solar tiene forma rectangular y mide 4 metros de largo por 3 metros de ancho.",
                 "🤖 Pregunta: ¿Cuántos metros cuadrados tiene el panel solar del que vamos a obtener la energía?"],
             ["🔍 Desafío: La nave necesita recargar energía solar, para activar la energía, deben calcular el área total de los paneles solares.",
@@ -103,14 +100,15 @@ export const ZonasParamsLuna = [
                 "Hay 3 paneles, pero uno está cubierto a la mitad por polvo espacial y no genera energía.",
                 "🤖 Pregunta: ¿Cuántos metros cuadrados de paneles pueden generar energía?"]
         ],
-        title: "🔥 Reto 4: Energía Solar de la Nave ☀️🔋"
+        titulo: "🔥 Reto 4: Energía Solar de la Nave ☀️🔋"
     },
     {
-        correctAnswers: ["300,000,000", "299,792"],
+        zona: Zona5,
+        Correct_answer: ["300,000,000", "299,792"],
         canvas: document.createElement("canvas"),
         ctx: null,
-        backgroundTexture: null,
-        lines: [
+        backgroundtexture: null,
+        Lineas: [
             ["🔍 Desafío: Para activar el motor de velocidad luz, los astronautas deben elegir la cifra correcta.",
                 "La luz viaja a 299,792,458 metros por segundo. ¿Cuál de estas opciones se acerca más?",
                 "a) 300,000,000    b) 150,000,000   c) 299,000,000",
@@ -121,7 +119,7 @@ export const ZonasParamsLuna = [
                 "a) 299,792    b) 300,000   c) 299,000",
                 "📝 Escribe la respuesta en formato numérico.(xxx,xxx)"]
         ],
-        title: "🌠 Reto 5: La Velocidad de la Luz ⚡"
+        titulo: "🌠 Reto 5: La Velocidad de la Luz ⚡"
     }
 ];
 

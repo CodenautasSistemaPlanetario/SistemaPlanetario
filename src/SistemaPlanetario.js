@@ -256,6 +256,7 @@ function CheckPlanetsCollisions() {
         if (distance < planet.geometry.parameters.radius + cameraPlanets.near +.2) {
             LoadArrayPreguntas(planet.name);
             document.exitPointerLock();
+            alreadyplayed = true;
             changeScene("sceneCuestions");
         }
     });
@@ -282,6 +283,7 @@ function CheckMoonCollision(){
         const distance = cameraWorldPos.distanceTo(moonWorldPos);
 
         if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
+            alreadyplayed = true;
             const nuevascene ="scene"+moon.name;
             console.log(nuevascene);
             changeScene(nuevascene);
