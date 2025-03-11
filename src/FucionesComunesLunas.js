@@ -2,7 +2,7 @@ import * as THREE from 'three';
 import { changeScene,removemovementEvents,resetMovimientoCamara,addmovementEvents } from '../Controlador.js';
 import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
 import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
-import {onClickOpcionesPhobos } from './Phobos.js';
+import {onClickOpcionesPhobos,ZonaParamsPhobos } from './Phobos.js';
 import { onClickOpcionesDeimos,ZonaParamsDeimos } from './Deimos.js';
 import { onClickOpcionesLuna,ZonasParamsLuna } from './Luna.js';
 
@@ -228,6 +228,9 @@ export function setLunaActiva(luna){
         case "luna":
             Zona_Params_Activo = ZonasParamsLuna;
             break;
+        case "phobos":
+            Zona_Params_Activo = ZonaParamsPhobos;
+            break;
     }
 }
 
@@ -285,7 +288,9 @@ export function AcabadoZona(){
     window.removeEventListener("keydown", escribirCanvas);
     addmovementEvents();
     Zona_Params_Activo.forEach(element => {
-        element.zona.visible = false;
+        if(element.zona){
+            element.zona.visible = false;
+        }
     });
     setTimeout(() => {
         collision = false;
@@ -316,12 +321,19 @@ function checkAnswer(letter) {
 }
 
 export function CrearCanvasTexture(scene,camara,Difficultad) {
+    console.log("Creando canvas texture");
+    console.log("Index_zona: ", Index_zona);
     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
     window.removeEventListener("click", onClickOpcionesDeimos);
 
     const zonaParams = Zona_Params_Activo[Index_zona];
-    if (!zonaParams) return;
+    console.log("ZonaParams: ", zonaParams);
+    console.log("Difficultad: ", Difficultad);
+    if (!zonaParams || !zonaParams.Lineas || !zonaParams.Lineas[Difficultad]) {
+        console.error("Invalid zonaParams or Lineas for the given Difficultad");
+        return;
+    }
 
     zona = zonaParams.zona;
     tituloreto = zonaParams.titulo;
@@ -370,6 +382,9 @@ export function CrearCanvasTexture(scene,camara,Difficultad) {
 
     Zona_Params_Activo[Index_zona].backgroundtexture = backgroundtexture;
     Zona_Params_Activo[Index_zona].ctx = ctx;
+    Zona_Params_Activo[Index_zona].canvas = canvas;
+    backgroundtexture.needsUpdate = true;
+
 
     collision = true;
     window.addEventListener("keydown", escribirCanvas);
@@ -401,6 +416,9 @@ function escribirCanvas(event) {
         User_input += event.key;
         texto_check = "";
     } else if (event.key === "Enter") {
+        User_input = User_input.toLocaleLowerCase(); 
+        User_input = User_input.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
+        
         correcto = checkAnswer(User_input);
         User_input = "";
         if (correcto) {

@@ -1,5 +1,6 @@
 import * as THREE from 'three';
-import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas,AcabadoZona } from './FucionesComunesLunas.js';
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas,AcabadoZona ,CrearCanvasTexture} from './FucionesComunesLunas.js';
+import {addmovementEvents} from '../Controlador.js';
 
 //Texturas
 const TextureLoader = new THREE.TextureLoader();
@@ -19,7 +20,6 @@ const mouse = new THREE.Vector2();
 var scenePhobos,cameraPhobos, renderer;
 
 
-var collision = false;
 
 var ya_jugado = false;
 
@@ -37,9 +37,6 @@ const Zona5 = new THREE.Group();
 const Text_color =" #ffffff";
 const Background_color =" #92c5fc";
 
-let User_input = "";
-var LastY_Global = 0;
-var Can_write = true;
 
 
 //Parametros elección dificultad (Zona 0)
@@ -94,47 +91,65 @@ let Secuencia_Input = [];
 var canClick = false;
 
 // Parametros Código del Alien (Zona 3)
-const canvas_Zona3 = document.createElement('canvas');
-const ctx_Zona3 = canvas_Zona3.getContext('2d');
-let Lineas_Zona3 = [
-    ["🔍 Desafío: Los alienígenas han dejado un mensaje encriptado. Descifra el código y descubre el mensaje oculto.",
-        "Mensaje encriptado de los aliens: aloh sonamuh, somos sol rahtyn"],
-    ["🔍 Desafío: Los alienígenas han dejado un mensaje encriptado. Descifra el código y descubre el mensaje oculto.",
-        "Mensaje encriptado de los aliens: mpt ñzuibs ibñ ftubep brvj"]];
-var backgroundtexture_Zona3;
-const Correct_answer_Zona3 = ["hola humanos, somos los nythar", "los nythar han estado aqui"];
-var LastY_Zona3 = 0;
+export const ZonaParamsPhobos = [
+    { zona: null, canvas: null, ctx: null, backgroundtexture: null, Lineas: [], titulo: "", Correct_answer: [] },
+    { zona: null, canvas: null, ctx: null, backgroundtexture: null, Lineas: [], titulo: "", Correct_answer: [] },
+    {
+        zona: Zona3,
+        canvas: document.createElement("canvas"),
+        ctx: null,
+        backgroundtexture: null,
+        Lineas: [
+            ["🔍 Desafío: Los alienígenas han dejado un mensaje encriptado. Descifra el código y descubre el mensaje oculto.",
+                "Mensaje encriptado de los aliens: aloh sonamuh, somos sol rahtyn"],
+            ["🔍 Desafío: Los alienígenas han dejado un mensaje encriptado. Descifra el código y descubre el mensaje oculto.",
+                "Mensaje encriptado de los aliens: mpt ñzuibs ibñ ftubep brvj"]
+        ],
+        titulo: "👽 Reto 3: Código de los Alienigenas",
+        Correct_answer: ["hola humanos, somos los nythar", "los nythar han estado aqui"]
+    },
+    {
+        zona: Zona4,
+        canvas: document.createElement("canvas"),
+        ctx: null,
+        backgroundtexture: null,
+        Lineas: [
+            ["Los astronautas tienen que visitar los planetas del sistema solar en el orden correcto para encontrar la salida.",
+                "🔍 Desafío: Ordena los planetas desde más cercano al Sol hasta el más lejano. Escribelo con el siguiente formato: x-x-x",
+                "📝 Planetas desordenados: Venus - Mercurio - Júpiter"],
+            ["Los astronautas tienen que visitar los planetas del sistema solar en el orden correcto para encontrar la salida.",
+                "🔍 Desafío: Ordena los planetas desde más cercano al Sol hasta el más lejano. Escribelo con el siguiente formato: x-x-x",
+                "📝 Planetas desordenados: Venus - Marte - Mercurio - Saturno - Júpiter"]
+        ],
+        titulo: "🔭 Reto 4: El Enigma de los Planetas",
+        Correct_answer: ["mercurio-venus-jupiter", "mercurio-venus-marte-jupiter-saturno"]
+    },
+    {
+        zona: Zona5,
+        canvas: document.createElement("canvas"),
+        ctx: null,
+        backgroundtexture: null,
+        Lineas: [
+            ["Los astronautas están explorando la galaxia nebuloria y se han encontrado un planeta desconocido, que no saben si explorar o no.",
+                "🔍 Desafío: descubre qué planeta es el que se han encontrado los astronautas.",
+                "📝 Descripción del planeta: es un planeta azul y verde con un clima extremo donde existe una neblina constante en la superficie.",
+                "🤖 Pregunta: ¿Qué planeta es este, basándote en las pistas dadas?"],
+            ["Los astronautas están explorando la galaxia nebuloria y se han encontrado un planeta desconocido, que no saben si explorar o no.",
+                "🔍 Desafío: descubre qué planeta es el que se han encontrado los astronautas.",
+                "📝 Descripción del planeta: es un planeta con temperaturas extremas: 45 grados por la mañana y -10 por la noche y una presión atmosférica de 0.9 veces la de la Tierra",
+                "🤖 Pregunta: ¿Qué planeta es este, basándote en las pistas dadas?"]
+        ],
+        titulo: "🔭 Reto 5: El Enigma de los Planetas",
+        Correct_answer: ["nymboria", "nymboria"]
+    }
+];
 
-// Parametros Código del Alien (Zona 4)
-const canvas_Zona4 = document.createElement('canvas');
-const ctx_Zona4 = canvas_Zona4.getContext('2d');
-let Lineas_Zona4 = [
-    ["Los astronautas tienen que visitar los planetas del sistema solar en el orden correcto para encontrar la salida.",
-        "🔍 Desafío: Ordena los planetas desde más cercano al Sol hasta el más lejano. Escribelo con el siguiente formato: x-x-x",
-        "📝 Planetas desordenados: Venus - Mercurio - Júpiter"],
-    ["Los astronautas tienen que visitar los planetas del sistema solar en el orden correcto para encontrar la salida.",
-        "🔍 Desafío: Ordena los planetas desde más cercano al Sol hasta el más lejano. Escribelo con el siguiente formato: x-x-x",
-        "📝 Planetas desordenados: Venus - Marte - Mercurio - Saturno - Júpiter"]];
-var backgroundtexture_Zona4;
-const Correct_answer_Zona4 = ["mercurio-venus-jupiter", "mercurio-venus-marte-jupiter-saturno"];
-var LastY_Zona4 = 0;
-
-// Parametros Adivina el planeta (Zona 5)
-const canvas_Zona5 = document.createElement('canvas');
-const ctx_Zona5 = canvas_Zona5.getContext('2d');
-let Lineas_Zona5 = [
-    ["Los astronautas estan explorando la galaxia nebuloria y se han encontrado un planeta desconocido, que no saben si explorar o no.",
-        "🔍 Desafío: descubre que planeta es el que se han encontrado los astronautas.",
-        "📝 Descripción del planeta: es un planeta azul y verde con un clima extremo donde existe una neblina constante en la superficie.",
-        "🤖 Pregunta:¿Qué planeta es este, basándote en las pistas dadas?"],
-        ["Los astronautas estan explorando la galaxia nebuloria y se han encontrado un planeta desconocido, que no saben si explorar o no.",
-            "🔍 Desafío: descubre que planeta es el que se han encontrado los astronautas.",
-            "📝 Descripción del planeta: es un planeta con temperaturas extremas: 45 grados por la mañana y -10 por la noche y una presión atmosferica de 0.9 veces la de la tierra",
-            "🤖 Pregunta:¿Qué planeta es este, basándote en las pistas dadas?"]];
-var backgroundtexture_Zona5;
-const Correct_answer_Zona5 = ["nymboria", "nymboria"];
-var LastY_Zona5 = 0;
-
+// Initialize contexts
+Object.keys(ZonaParamsPhobos).forEach(key => {
+    if(ZonaParamsPhobos[key].canvas){
+        ZonaParamsPhobos[key].ctx = ZonaParamsPhobos[key].canvas.getContext("2d");
+    }
+});
 
 function CreateScenePhobos(globalrenderer)
 {
@@ -271,24 +286,14 @@ function CargarZonas(index){
             window.addEventListener("click", ClickSimbolos);
             break;
         case 2:
-            CreaZona3();
-            window.addEventListener("keydown", escribirCanvas);
-            break;
         case 3:
-            CreaZona4();
-            window.addEventListener("keydown", escribirCanvas);
-            Zona4.visible = true;
-            break;
         case 4:
-            CreaZona5();
-            window.addEventListener("keydown", escribirCanvas);
-            Zona5.visible = true;
+            CrearCanvasTexture(scenePhobos,cameraPhobos,Difficultad);
             break;
         default:
             return;
     }
 
-    window.addEventListener("keydown", escribirCanvas);
     window.removeEventListener("click", onClickOpcionesPhobos);
     
 }
@@ -549,163 +554,9 @@ function resetZona2() {
   }, 2000);
 }
 
-//Zona 3
-function CreaZona3() {
-    clearZone(Zona3);
-
-    canvas_Zona3.width = 1024;
-    canvas_Zona3.height = 512;
-
-    ctx_Zona3.fillStyle = Background_color;
-    ctx_Zona3.fillRect(0, 0, canvas_Zona3.width, canvas_Zona3.height);
-    ctx_Zona3.fillStyle = Text_color;
-    ctx_Zona3.font = "50px Arial";
-    ctx_Zona3.fillText("👽 Reto 3: Código de los Alienigenas", 10, 50);
-    
-    ctx_Zona3.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona3[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona3, linea, 10, startY, canvas_Zona3.width - 20, Height);
-    }
-
-    LastY_Zona3 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona3 = new THREE.CanvasTexture(canvas_Zona3);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona3,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona3.add(backgroundMesh);
-
-    Zona3.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona3.children[0].getWorldPosition(pos_global);
-    cameraPhobos.lookAt(pos_global);
-    scenePhobos.add(Zona3);
-}
-
-//Zona 4
-function CreaZona4() {
-    clearZone(Zona4);
-
-    canvas_Zona4.width = 1024;
-    canvas_Zona4.height = 512;
-
-    ctx_Zona4.fillStyle = Background_color;
-    ctx_Zona4.fillRect(0, 0, canvas_Zona4.width, canvas_Zona4.height);
-    ctx_Zona4.fillStyle = Text_color;
-    ctx_Zona4.font = "50px Arial";
-    ctx_Zona4.fillText("🔭 Reto 5: El Enigma de los Planetas", 10, 50);
-    
-    ctx_Zona4.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona4[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona4, linea, 10, startY, canvas_Zona4.width - 20, Height);
-    }
-
-    LastY_Zona4 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona4 = new THREE.CanvasTexture(canvas_Zona4);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona4,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona4.add(backgroundMesh);
-
-    Zona4.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona4.children[0].getWorldPosition(pos_global);
-    cameraPhobos.lookAt(pos_global);
-    scenePhobos.add(Zona4);
-}
-
-//Zona 5
-function CreaZona5() {
-    clearZone(Zona5);
-
-    canvas_Zona5.width = 1024;
-    canvas_Zona5.height = 512;
-
-    ctx_Zona5.fillStyle = Background_color;
-    ctx_Zona5.fillRect(0, 0, canvas_Zona5.width, canvas_Zona5.height);
-    ctx_Zona5.fillStyle = Text_color;
-    ctx_Zona5.font = "50px Arial";
-    ctx_Zona5.fillText("🔭 Reto 5: El Enigma de los Planetas", 10, 50);
-    
-    ctx_Zona5.font = "30px Arial";
-    let startY=100;
-    let Height = 35;
-    for (let linea of Lineas_Zona5[Difficultad]) {
-        startY +=DividirLineas(ctx_Zona5, linea, 10, startY, canvas_Zona5.width - 20, Height);
-    }
-
-    LastY_Zona5 = startY;
-
-    const backgroundGeometry = new THREE.PlaneGeometry(10, 5);
-    backgroundtexture_Zona5 = new THREE.CanvasTexture(canvas_Zona5);
-    const backgroundMaterial =  new THREE.MeshBasicMaterial({ map: backgroundtexture_Zona5,
-        opacity: 0.8,
-        transparent: true
-    });
-    
-    const backgroundMesh = new THREE.Mesh(backgroundGeometry, backgroundMaterial);
-    backgroundMesh.position.set(0, 2, -4);
-    Zona5.add(backgroundMesh);
-
-    Zona5.visible = true;
-    const pos_global = new THREE.Vector3();
-    Zona5.children[0].getWorldPosition(pos_global);
-    cameraPhobos.lookAt(pos_global);
-    scenePhobos.add(Zona5);
-}
-
-
-
-function checkAnswer(letter) {
-    let correcto = false;
-    let local_correct_answer = "";
-    switch(Index_zona){
-        case 2:
-            local_correct_answer = Correct_answer_Zona3[Difficultad];
-            break;
-        case 3:
-            local_correct_answer = Correct_answer_Zona4[Difficultad];
-            break;
-        case 4:
-            local_correct_answer = Correct_answer_Zona5[Difficultad];
-            break;
-    }
-
-    if (letter === local_correct_answer) {
-        Can_write = false; // Bloquear clics temporalmente
-        correcto = true;
-        setTimeout(() => {
-            Can_write = true; // Reactivar clics después de 2 segundos
-            collision = AcabadoZona(Zona1,Zona2,Zona3,Zona4,Zona5);
-        }, 2000);
-    } else {
-        Can_write = false; // Bloquear clics temporalmente
-        correcto = false;
-        setTimeout(() => {
-            Can_write = true;
-        }, 2000);
-    }
-
-    return correcto;
-}
 
 //Eventos
-export function onClickOpcionesPhobos(event){
+export function onClickOpcionesPhobos(event, index){
     mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
     mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
     raycaster.setFromCamera(mouse, cameraPhobos);
@@ -716,6 +567,7 @@ export function onClickOpcionesPhobos(event){
         if (clickedButton.userData.index !== undefined) {
             Difficultad = clickedButton.userData.index;
             Zona0.visible = false;
+            Index_zona = index;
             CargarZonas(Index_zona);
         }
     }
@@ -801,94 +653,6 @@ function ClickSimbolos(event){
         });
     }
     
-}
-
-function escribirCanvas(event) {
-    let correcto = null;
-    let texto_check = "";
-    let color_check = "";
-
-    let local_canvas;
-    let local_ctx;
-    let local_texture;
-
-    switch (Index_zona) {
-        case 2:
-            LastY_Global = LastY_Zona3;
-            local_canvas = canvas_Zona3;
-            local_ctx = ctx_Zona3;
-            local_texture = backgroundtexture_Zona3;
-            break;
-        case 3:
-            LastY_Global = LastY_Zona4;
-            local_canvas = canvas_Zona4;
-            local_ctx = ctx_Zona4;
-            local_texture = backgroundtexture_Zona4;
-            break;
-        case 4:
-            LastY_Global = LastY_Zona5;
-            local_canvas = canvas_Zona5;
-            local_ctx = ctx_Zona5;
-            local_texture = backgroundtexture_Zona5;
-            break;
-        default:
-            return;
-    }
-
-    if (!Can_write) {
-        return;
-    }
-
-    if (event.key === "Backspace") {
-        User_input = User_input.slice(0, -1);
-        texto_check = "";
-    } else if (event.key.length === 1) {
-        User_input += event.key;
-        texto_check = "";
-        
-    } else if (event.key === "Enter") {
-        User_input = User_input.toLocaleLowerCase(); 
-        User_input = User_input.normalize("NFD").replace(/[\u0300-\u036f]/g, ""); 
-        
-        correcto = checkAnswer(User_input);
-        User_input = "";
-        if (correcto) {
-            texto_check = "Correcto";
-            color_check = "#00ff00";
-        } else if (!correcto) {
-            texto_check = "Incorrecto";
-            color_check = "#ff0000";
-        }
-    }
-
-    const espacio_disponible = local_canvas.height - LastY_Global;
-    local_ctx.fillStyle = Background_color;
-    local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, espacio_disponible);
-   
-
-    local_ctx.fillStyle = Text_color;
-
-
-    let userinput_width = local_ctx.measureText(User_input).width;
-    let userinput_x = (local_canvas.width - userinput_width) / 2;
-    let userinput_y = LastY_Global + (espacio_disponible / 4);
-    local_ctx.fillText(User_input, userinput_x, userinput_y);
-
-    if (correcto != null) {
-        local_ctx.fillStyle = color_check;
-        let texto_width = local_ctx.measureText(texto_check).width;
-        let texto_x = (local_canvas.width - texto_width) / 2;
-        local_ctx.fillText(texto_check, texto_x, userinput_y);
-        setTimeout(() => {
-            texto_check = "";
-            color_check = "";
-            local_ctx.fillStyle = Background_color;
-            local_ctx.fillRect(250, LastY_Global, local_canvas.width - 500, 90);
-            local_texture.needsUpdate = true;
-        }, 2000);
-    }
-
-    local_texture.needsUpdate = true;
 }
 
 
