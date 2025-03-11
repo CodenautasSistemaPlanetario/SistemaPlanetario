@@ -38,8 +38,6 @@ const num_Stars = 3000;
 
 const TexturePath = "./img/Planets/";
 
-var worldPos = new THREE.Vector3();
-
 let checkedThisFrame = false;
 
 
@@ -153,7 +151,7 @@ function MoonGeometry() {
 
         const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
         const moontexture = loadertexture.load(
-            TexturePath + "Luna" + ".jpg"
+            TexturePath + data.name + ".jpg"
         );  
         const material = new THREE.MeshStandardMaterial({ map: moontexture });
         const moon = new THREE.Mesh(geometry, material);
