@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas,AcabadoZona ,CrearCanvasTexture} from './FucionesComunesLunas.js';
+import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas ,CrearCanvasTexture,CrearFlechaVuelta,AnimateCono} from './FucionesComunesLunas.js';
 import {addmovementEvents} from '../Controlador.js';
 
 //Texturas
@@ -199,11 +199,7 @@ function CreateScenePhobos(globalrenderer)
     
 
     // Volver 
-    const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(0, 0, 0);
-    scenePhobos.add(cube);
+    CrearFlechaVuelta(scenePhobos);
 
 
 
@@ -249,9 +245,10 @@ function animateScenePhobos() {
     }
 
 
-    CheckVuelta(cameraPhobos);
+    ya_jugado = CheckVuelta(cameraPhobos);
     CheckLlegadaZonas(ZonasJugables,cameraPhobos,Zona0);
     CheckBordes(cameraPhobos);
+    AnimateCono();
 
     if(gameActive_Zona1){
         updateMeteoritos();
@@ -275,7 +272,6 @@ function animateScenePhobos() {
 
 
 function CargarZonas(index){
-    console.log(index);
     switch(index){
         case 0:
             CreaZona1();

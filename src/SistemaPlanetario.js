@@ -283,7 +283,6 @@ function CheckMoonCollision(){
         if (distance < moon.geometry.parameters.radius + cameraPlanets.near +.2) {
             alreadyplayed = true;
             const nuevascene ="scene"+moon.name;
-            console.log(nuevascene);
             changeScene(nuevascene);
             document.exitPointerLock();
         }

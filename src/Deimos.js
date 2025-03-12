@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import { CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,CheckLlegadaZonas,reiniciar } from './FucionesComunesLunas.js';
+import { CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,CheckLlegadaZonas,reiniciar,CrearFlechaVuelta,AnimateCono } from './FucionesComunesLunas.js';
 
 
 
@@ -169,11 +169,7 @@ function CreateSceneDeimos(globalrenderer)
     
 
     // Volver 
-    const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(0, 0, 0);
-    sceneDeimos.add(cube);
+    CrearFlechaVuelta(sceneDeimos);
 
 
 
@@ -204,7 +200,7 @@ function animateSceneDeimos() {
     
     CheckLlegadaZonas(ZonasJugables,cameraDeimos,Zona0);
     CheckBordes(cameraDeimos);
-    
+    AnimateCono();
 
     renderer.render(sceneDeimos, cameraDeimos);
 }

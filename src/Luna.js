@@ -1,5 +1,5 @@
 import * as THREE from 'three';
-import {  CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,CheckLlegadaZonas,reiniciar } from './FucionesComunesLunas.js';
+import {  CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,CheckLlegadaZonas,reiniciar,CrearFlechaVuelta,AnimateCono } from './FucionesComunesLunas.js';
 
 
 //Texturas
@@ -179,11 +179,7 @@ function CreateSceneLuna(globalrenderer)
     
 
     // Volver 
-    const geometry = new THREE.BoxGeometry(1, 0.1, 1);
-    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-    const cube = new THREE.Mesh(geometry, material);
-    cube.position.set(0, 0, 0);
-    sceneLuna.add(cube);
+    CrearFlechaVuelta(sceneLuna);
 
     cameraLuna.position.set(0, 2, 0);
 
@@ -202,9 +198,10 @@ function animateSceneLunas() {
         ya_jugado = false;
     }
 
-    CheckVuelta(cameraLuna);
+    ya_jugado = CheckVuelta(cameraLuna);
     CheckLlegadaZonas(ZonasJugables,cameraLuna,Zona0);
     CheckBordes(cameraLuna);
+    AnimateCono();
     
 
     renderer.render(sceneLuna, cameraLuna);

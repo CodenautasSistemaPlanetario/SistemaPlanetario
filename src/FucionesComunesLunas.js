@@ -8,10 +8,11 @@ import { onClickOpcionesLuna,ZonasParamsLuna } from './Luna.js';
 
 const path = "./img/Stars/";
 const TextureCubeLoader = new THREE.CubeTextureLoader();
+const clock = new THREE.Clock();
 
 var empieza_moverse = false;
 
-const Zona0 = new THREE.Group();
+// const Zona0 = new THREE.Group();
 
 //Parametros Zona 0
 const Opciones = ["Fácil", "Difícil"];
@@ -33,13 +34,15 @@ let User_input = "";
 let LastY_Global = 0;
 let Can_write = true;
 let collision = false;
-let ya_jugado = false;
+// let ya_jugado = false;
 const Text_color =" #ffffff";
 const Background_color =" #92c5fc";
 let Difficultad_Zona;
 
 
 const dist_colision_zonas = 1.5;
+
+var cono;
 
 export function clearZone(zone) {
     for (let i = zone.children.length - 1; i >= 0; i--) {
@@ -82,19 +85,37 @@ export function CheckBordes(camera){
 }
 
 export function CheckVuelta(camara){
+    var yajugador = false;
     const pos_zona_elevada = new THREE.Vector3(0, camara.position.y, 0);
     const distance = camara.position.distanceTo(pos_zona_elevada);
 
     if(!empieza_moverse && distance >= 1.3){
         empieza_moverse = true;
     } else if(empieza_moverse && distance <= 1){
-        ya_jugado = true;
+        yajugador = true;
         changeScene("scenePlanets");
         empieza_moverse = false;
     }
+    return yajugador;
 }
 
-export function reiniciar(camara,Zona0){
+export function CrearFlechaVuelta(scene){
+    const geometry = new THREE.ConeGeometry(0.5, 1, 4);
+    const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    cono = new THREE.Mesh(geometry, material);
+    cono.rotation.x = Math.PI;
+    cono.position.set(0, 2, 0);
+    scene.add(cono);
+}
+
+export function AnimateCono(){
+    if(empieza_moverse){
+        const elapsedTime = clock.getElapsedTime();
+        cono.position.y = 2.5 + Math.sin( elapsedTime * 1.5) * 0.5;
+    }
+}
+
+export function reiniciar(camara){
     camara.position.set(0, 2, 0);
     camara.rotation.set(0, 0, 0);
 
@@ -321,15 +342,11 @@ function checkAnswer(letter) {
 }
 
 export function CrearCanvasTexture(scene,camara,Difficultad) {
-    console.log("Creando canvas texture");
-    console.log("Index_zona: ", Index_zona);
     let zona, canvas, ctx, lineas,backgroundtexture,tituloreto;
 
     window.removeEventListener("click", onClickOpcionesDeimos);
 
     const zonaParams = Zona_Params_Activo[Index_zona];
-    console.log("ZonaParams: ", zonaParams);
-    console.log("Difficultad: ", Difficultad);
     if (!zonaParams || !zonaParams.Lineas || !zonaParams.Lineas[Difficultad]) {
         console.error("Invalid zonaParams or Lineas for the given Difficultad");
         return;
