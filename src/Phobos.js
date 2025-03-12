@@ -5,8 +5,8 @@ import {addmovementEvents} from '../Controlador.js';
 //Texturas
 const TextureLoader = new THREE.TextureLoader();
 
-const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
-const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
+const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
+const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorPhobos.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
 const Land_texture_roughness = TextureLoader.load(Groundpath + "Roughness.jpg");
 const Land_texture_ao = TextureLoader.load(Groundpath + "AmbientOcclusion.jpg");
@@ -199,7 +199,7 @@ function CreateScenePhobos(globalrenderer)
     
 
     // Volver 
-    CrearFlechaVuelta(scenePhobos);
+    CrearFlechaVuelta(scenePhobos,"Phobos");
 
 
 

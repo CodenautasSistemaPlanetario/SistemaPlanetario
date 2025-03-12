@@ -141,7 +141,10 @@ function MoverCamara(){
     if (right!=0) {
         camera.position.add(camright.clone().multiplyScalar(right * dt *camspeed));
     }
+
+    camera.updateMatrixWorld(true);
 }
+
 
 function resetMovimientoCamara(){
     forward = 0;
@@ -215,6 +218,8 @@ function onPointerLockChange() {
     } else {
         document.removeEventListener("mousemove", onMouseMove, false);
     }
+
+    resetMovimientoCamara();
 };
 
 function onMouseMove(event) {
@@ -239,6 +244,7 @@ function onMouseMove(event) {
     camera.quaternion.copy(quaternionYaw);
     camera.quaternion.multiply(quaternionPitch);
 };
+
 
 function addEvents(){
     window.addEventListener("resize", resize);

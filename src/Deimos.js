@@ -7,8 +7,8 @@ import { CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,Ch
 
 
 const TextureLoader = new THREE.TextureLoader();
-const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
-const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
+const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
+const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorDeimos.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
 const Land_texture_roughness = TextureLoader.load(Groundpath + "Roughness.jpg");
 const Land_texture_ao = TextureLoader.load(Groundpath + "AmbientOcclusion.jpg");
@@ -169,7 +169,7 @@ function CreateSceneDeimos(globalrenderer)
     
 
     // Volver 
-    CrearFlechaVuelta(sceneDeimos);
+    CrearFlechaVuelta(sceneDeimos,"Deimos");
 
 
 

@@ -43,6 +43,7 @@ let Difficultad_Zona;
 const dist_colision_zonas = 1.5;
 
 var cono;
+var conoPhobos,conoDeimos,conoLuna;
 
 export function clearZone(zone) {
     for (let i = zone.children.length - 1; i >= 0; i--) {
@@ -99,13 +100,25 @@ export function CheckVuelta(camara){
     return yajugador;
 }
 
-export function CrearFlechaVuelta(scene){
+export function CrearFlechaVuelta(scene,nombre_escena){
     const geometry = new THREE.ConeGeometry(0.5, 1, 4);
     const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     cono = new THREE.Mesh(geometry, material);
     cono.rotation.x = Math.PI;
     cono.position.set(0, 2, 0);
     scene.add(cono);
+    switch(nombre_escena)
+    { 
+        case "Phobos":
+            conoPhobos = cono;
+            break;
+        case "Deimos":
+            conoDeimos = cono;
+            break;
+        case "Luna":
+            conoLuna = cono;
+            break;
+    }
 }
 
 export function AnimateCono(){
@@ -245,12 +258,15 @@ export function setLunaActiva(luna){
     {
         case "deimos":
             Zona_Params_Activo = ZonaParamsDeimos;
+            cono = conoDeimos;
             break;
         case "luna":
             Zona_Params_Activo = ZonasParamsLuna;
+            cono = conoLuna;
             break;
         case "phobos":
             Zona_Params_Activo = ZonaParamsPhobos;
+            cono = conoPhobos;
             break;
     }
 }

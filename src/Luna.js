@@ -4,8 +4,8 @@ import {  CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,C
 
 //Texturas
 const TextureLoader = new THREE.TextureLoader();
-const Groundpath = "./img/Luna/Gravel009_1K-JPG_";
-const Land_texture_albedo = TextureLoader.load(Groundpath + "Color.jpg");
+const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
+const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorLuna.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
 const Land_texture_roughness = TextureLoader.load(Groundpath + "Roughness.jpg");
 const Land_texture_ao = TextureLoader.load(Groundpath + "AmbientOcclusion.jpg");
@@ -179,7 +179,7 @@ function CreateSceneLuna(globalrenderer)
     
 
     // Volver 
-    CrearFlechaVuelta(sceneLuna);
+    CrearFlechaVuelta(sceneLuna,"Luna");
 
     cameraLuna.position.set(0, 2, 0);
 
