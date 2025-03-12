@@ -34,7 +34,7 @@ let forward = 0;
 let right = 0;
 let yaw = 0;
 let pitch = 0;
-let rotsensitivity = 0.001;
+let rotsensitivity =0.01;
 let camspeed = 4;
 let camforward, camright;
 let EstoyScenePlanets = true;
@@ -125,7 +125,7 @@ function MoverCamara(){
 
     camera.updateProjectionMatrix();
     
-    camera.getWorldDirection(camforward);
+    // camera.getWorldDirection(camforward);
     camright.crossVectors(camera.up, camforward).normalize();
 
     if(!EstoyScenePlanets){
@@ -179,22 +179,19 @@ function onkeydown(event) {
 
 }
 
+
 function onkeyup(event) {
     const key = event.key;
-   
+
     switch (key) {
         case "w":
         case "W":
-            forward = 0;
-            break;
         case "s":
         case "S":
             forward = 0;
             break;
         case "a":
         case "A":
-            right = 0;
-            break;
         case "d":
         case "D":
             right = 0;
@@ -209,7 +206,8 @@ function resize(event){
 };
 
 function onClick(event) {
-    document.body.requestPointerLock();
+    if(document.pointerLockElement !== document.body)
+        document.body.requestPointerLock();
 };
 
 function onPointerLockChange() {
