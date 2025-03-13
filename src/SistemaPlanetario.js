@@ -20,9 +20,9 @@ var sun;
 
 const moons = [];
 const moonData = [
-    { name:'Luna', namePlanet:'Mechanon', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
-    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.1496, speedrotation: 0.5,},
-    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed:4 , speedrotation: 0.5,},
+    { name:'Luna', namePlanet:'Mechanon', radius: 0.5, distance: 4, speed: 0.00748, speedrotation: 0.5,},
+    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.005845, speedrotation: 0.5,},
+    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed:0.005585, speedrotation: 0.5,},
 ];
 
 

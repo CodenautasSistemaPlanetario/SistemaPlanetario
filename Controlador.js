@@ -215,9 +215,10 @@ function onPointerLockChange() {
         document.addEventListener("mousemove", onMouseMove, false);
     } else {
         document.removeEventListener("mousemove", onMouseMove, false);
+        resetMovimientoCamara();
     }
 
-    resetMovimientoCamara();
+    
 };
 
 function onMouseMove(event) {
