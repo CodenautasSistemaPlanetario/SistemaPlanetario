@@ -125,7 +125,7 @@ function MoverCamara(){
 
     camera.updateProjectionMatrix();
     
-    // camera.getWorldDirection(camforward);
+    camera.getWorldDirection(camforward);
     camright.crossVectors(camera.up, camforward).normalize();
 
     if(!EstoyScenePlanets){
