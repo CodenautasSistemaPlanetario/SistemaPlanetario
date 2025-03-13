@@ -1,9 +1,10 @@
 import * as THREE from "three";
 import {changeScene} from "../Controlador.js";
 import { LoadArrayPreguntas } from "./Cuestionario.js";
+import { manager } from './LoadingManager.js';
 
 //Loader
-const loadertexture = new THREE.TextureLoader();
+const loadertexture = new THREE.TextureLoader(manager);
 var scenePlanets, cameraPlanets, renderer;
 
 var clock;

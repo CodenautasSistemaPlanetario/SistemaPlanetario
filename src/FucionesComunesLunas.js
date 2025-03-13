@@ -5,9 +5,10 @@ import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geomet
 import {onClickOpcionesPhobos,ZonaParamsPhobos } from './Phobos.js';
 import { onClickOpcionesDeimos,ZonaParamsDeimos } from './Deimos.js';
 import { onClickOpcionesLuna,ZonasParamsLuna } from './Luna.js';
+import { manager } from './LoadingManager.js';
 
 const path = "./img/Stars/";
-const TextureCubeLoader = new THREE.CubeTextureLoader();
+const TextureCubeLoader = new THREE.CubeTextureLoader(manager);
 const clock = new THREE.Clock();
 
 var empieza_moverse = false;
@@ -22,7 +23,7 @@ const FontHeightOpciones = 0.1;
 const FontDepthOpciones = 0.01;
 const FontColorOpciones = 0xffffff;
 const Texto_Zona0 = "Elige la dificultad del reto:";
-const Fontloader = new FontLoader();
+const Fontloader = new FontLoader(manager);
 const FontName = './font/Roboto_Regular.json';
 
 

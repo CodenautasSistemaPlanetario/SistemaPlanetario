@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { manager } from "./src/LoadingManager.js";
 import {CreateScenePlanets, animateScenePlanets }from "./src/SistemaPlanetario.js";
 import { CreateSceneCuestions, animateSceneCuestions,addEventsCuestions,removeEventsCuestions }from "./src/Cuestionario.js";
 import{CreateSceneLuna,animateSceneLunas} from "./src/Luna.js";
@@ -7,6 +8,7 @@ import { CreateSceneDeimos,animateSceneDeimos } from "./src/Deimos.js";
 import {setLunaActiva} from "./src/FucionesComunesLunas.js";
 
 //Renderer
+
 const renderer = new THREE.WebGLRenderer();
 renderer.setSize(window.innerWidth, window.innerHeight);
 document.body.appendChild(renderer.domElement);
@@ -111,6 +113,9 @@ function Animate(){
         Activeanimate();
     }
 }
+
+
+
 
 function initMovimientoCamera(){
     camforward = new THREE.Vector3();

@@ -4,16 +4,20 @@ import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geomet
 import { OrbitControls } from 'https://cdn.jsdelivr.net/npm/three@0.128.0/examples/jsm/controls/OrbitControls.js';
 import { changeScene } from '../Controlador.js';
 import { Preguntas_AquaTerra,Preguntas_Alcyon,Preguntas_Ignis,Preguntas_Mechanon,Preguntas_Nymboria,Preguntas_Zephyria } from './Preguntas.js';
-
+import { manager } from './LoadingManager.js';
 var sceneCuestions, cameraCuestions,renderer, controls;
 
 
 const raycaster = new THREE.Raycaster();
 const mouse = new THREE.Vector2();
 
+if (!manager) {
+    console.error('Manager is not available');
+}
 
-const Fontloader = new FontLoader();
-const TextureLoader = new THREE.CubeTextureLoader();
+
+const Fontloader = new FontLoader(manager);
+const TextureLoader = new THREE.CubeTextureLoader(manager);
 
 var alreadypladed = false;
 

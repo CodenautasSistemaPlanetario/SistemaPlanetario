@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import {  CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,CrearCanvasTexture,CheckLlegadaZonas,reiniciar,CrearFlechaVuelta,AnimateCono } from './FucionesComunesLunas.js';
+import { manager } from './LoadingManager.js';
 
 
 //Texturas
-const TextureLoader = new THREE.TextureLoader();
+const TextureLoader = new THREE.TextureLoader(manager);
 const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
 const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorLuna.jpg");
 const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");

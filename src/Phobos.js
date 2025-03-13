@@ -1,9 +1,10 @@
 import * as THREE from 'three';
 import { clearZone,CrearSkysphere,CheckBordes,CheckVuelta,CrearZonas,DividirLineas,CheckLlegadaZonas ,CrearCanvasTexture,CrearFlechaVuelta,AnimateCono} from './FucionesComunesLunas.js';
 import {addmovementEvents} from '../Controlador.js';
+import { manager } from './LoadingManager.js';
 
 //Texturas
-const TextureLoader = new THREE.TextureLoader();
+const TextureLoader = new THREE.TextureLoader(manager);
 
 const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
 const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorPhobos.jpg");
