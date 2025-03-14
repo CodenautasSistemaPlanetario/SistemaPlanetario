@@ -28,14 +28,14 @@ const moonData = [
 
 
 //Movimiento de la cámara
-var camforward ;
+var camforward;
 var camspeed = 4;
 var camCollisionSensitive = 60; //Suvidad con la que la camara colisiona con los planetas
 
 
 let alreadyplayed = false;
 
-const num_Stars = 3000;
+const num_Stars = 1200;
 
 const TexturePath = "./img/Planets/";
 
@@ -84,27 +84,66 @@ function light() {
 }
 
 // Fondo estrellado
+// Fondo estrellado - con tres métodos diferentes
 function StarsGeometry() {
-    const starGeometry = new THREE.BufferGeometry();
-    const starVertices = [];
-    for (let i = 0; i < num_Stars; i++) {
-        starVertices.push((Math.random() - 0.5) * 2000);
-        starVertices.push((Math.random() - 0.5) * 2000);
-        starVertices.push((Math.random() - 0.5) * 2000);
-    }
-    starGeometry.setAttribute(
-        "position",
-        new THREE.Float32BufferAttribute(starVertices, 3)
-    );
-    const starMaterial = new THREE.PointsMaterial({ color: 0xffffff });
-    const stars = new THREE.Points(starGeometry, starMaterial);
-    scenePlanets.add(stars);
+    
+        const starGeometry = new THREE.BufferGeometry();
+        const starVertices = [];
+        const starColors = []; // Añadimos colores para más realismo
+        const radius = 600; // Radio muy grande para asegurar que estén lejos
+        
+        for (let i = 0; i < num_Stars; i++) {
+            // Posicionar en una esfera usando distribución uniforme
+            const u = Math.random();
+            const v = Math.random();
+            const theta = 2 * Math.PI * u;
+            const phi = Math.acos(2 * v - 1);
+            
+            const x = radius * Math.sin(phi) * Math.cos(theta);
+            const y = radius * Math.sin(phi) * Math.sin(theta);
+            const z = radius * Math.cos(phi);
+            
+            starVertices.push(x, y, z);
+            
+            // Añadir variedad de color a las estrellas
+            // Algunas blancas, algunas azuladas, algunas rojizas
+            if (Math.random() > 0.9) {
+                // Estrellas rojizas (10%)
+                starColors.push(1.0, 0.8, 0.8);
+            } else if (Math.random() > 0.8) {
+                // Estrellas azuladas (10%)
+                starColors.push(0.8, 0.8, 1.0);
+            } else {
+                // Estrellas blancas (80%)
+                starColors.push(1.0, 1.0, 1.0);
+            }
+        }
+        
+        starGeometry.setAttribute(
+            "position", 
+            new THREE.Float32BufferAttribute(starVertices, 3)
+        );
+        
+        starGeometry.setAttribute(
+            "color", 
+            new THREE.Float32BufferAttribute(starColors, 3)
+        );
+        
+        const starMaterial = new THREE.PointsMaterial({
+            size: 1.5,
+            sizeAttenuation: false, // Las estrellas no cambian de tamaño con la distancia
+            vertexColors: true // Usar los colores que definimos
+        });
+        
+        const stars = new THREE.Points(starGeometry, starMaterial);
+        scenePlanets.add(stars);
+    
 }
 
 // Sol
 function SunGeometry() {
-    const sunGeometry = new THREE.SphereGeometry(4, 32, 32);
-    const sunTexture = loadertexture.load('./img/Sun.jpg' );  
+    const sunGeometry = new THREE.SphereGeometry(4, 19, 19);
+    const sunTexture = loadertexture.load('./img/Sun.webp' );  
     sunTexture.mapping = THREE.EquirectangularReflectionMapping;
     const sunMaterial = new THREE.MeshBasicMaterial({
         map: sunTexture,        // Aplicar la textura
@@ -119,9 +158,9 @@ function SunGeometry() {
 // Planetas
 function PlanetGeometry() {
     planetData.forEach((data) => {
-        const geometry = new THREE.SphereGeometry(data.radius, 32, 32);
+        const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
         const planettexture = loadertexture.load(
-            TexturePath + data.name + ".jpg"
+            TexturePath + data.name + ".webp"
         );  
         planettexture.mapping = THREE.EquirectangularReflectionMapping;
         const material = new THREE.MeshStandardMaterial({ map: planettexture });
@@ -150,9 +189,9 @@ function MoonGeometry() {
         const parentPlanet = planets.find(p => p.name === data.namePlanet);
         if (!parentPlanet) return; // Si no hay planeta con ese nombre, continuar
 
-        const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
+        const geometry = new THREE.SphereGeometry(data.radius, 8, 8);
         const moontexture = loadertexture.load(
-            TexturePath + data.name + ".jpg"
+            TexturePath + data.name + ".webp"
         );  
         const material = new THREE.MeshStandardMaterial({ map: moontexture });
         const moon = new THREE.Mesh(geometry, material);

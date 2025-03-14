@@ -7,11 +7,11 @@ import { manager } from './LoadingManager.js';
 const TextureLoader = new THREE.TextureLoader(manager);
 
 const Groundpath = "./img/Lunas/Gravel009_1K-JPG_";
-const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorPhobos.jpg");
-const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.jpg");
-const Land_texture_roughness = TextureLoader.load(Groundpath + "Roughness.jpg");
-const Land_texture_ao = TextureLoader.load(Groundpath + "AmbientOcclusion.jpg");
-const Land_texture_height = TextureLoader.load(Groundpath + "Displacement.jpg");
+const Land_texture_albedo = TextureLoader.load(Groundpath + "ColorPhobos.webp");
+const Land_texture_normal = TextureLoader.load(Groundpath + "Normal.webp");
+const Land_texture_roughness = TextureLoader.load(Groundpath + "Roughness.webp");
+const Land_texture_ao = TextureLoader.load(Groundpath + "AmbientOcclusion.webp");
+const Land_texture_height = TextureLoader.load(Groundpath + "Displacement.webp");
 
 //Variables
 const raycaster = new THREE.Raycaster();

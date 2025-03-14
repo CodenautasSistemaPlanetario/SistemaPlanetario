@@ -66,12 +66,12 @@ function CreateSceneCuestions(globalrenderer){
 
 function CrearSkysphere(){  
     const texture = TextureLoader.load([
-        'px.png', // Positivo en X (derecha)
-        'nx.png', // Negativo en X (izquierda)
-        'py.png', // Positivo en Y (arriba)
-        'ny.png', // Negativo en Y (abajo)
-        'pz.png', // Positivo en Z (frente)
-        'nz.png'  // Negativo en Z (atrás)
+        'px.webp', // Positivo en X (derecha)
+        'nx.webp', // Negativo en X (izquierda)
+        'py.webp', // Positivo en Y (arriba)
+        'ny.webp', // Negativo en Y (abajo)
+        'pz.webp', // Positivo en Z (frente)
+        'nz.webp'  // Negativo en Z (atrás)
     ]);
 
         sceneCuestions.background = texture;
