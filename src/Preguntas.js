@@ -4,7 +4,7 @@
 
 //Preguntas de Aquaterra
 const Preguntas_AquaTerra =[
-    ['AquaTerra',['Pulparians','Aquarians','Tiburonions','Pecerians'],1],
+    ['¿Cómo se llaman los habitantes de Aquaterra?',['Pulparians','Aquarians','Tiburonions','Pecerians'],1],
     ['Los Aquarians',['Son seres anfibios adaptados a la vida marina','Son mitad pulpo mitad robot','Son humanos que siempre van en bañador','Son microorganismos como algas'],0],
     ['Los Aquarians es una sociedad basada en la cooperación y la conservación del medio ambiente marino.',['Verdadero','Falso'],0],
     ['La temperatura de Aquaterra ronda los...',['0 grados Celsius','100 grados Celsius','-10 grados Celsius','25 grados Celsius'],3],
