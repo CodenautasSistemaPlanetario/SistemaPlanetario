@@ -15,6 +15,10 @@ if (!manager) {
     console.error('Manager is not available');
 }
 
+const planetNames = ["AquaTerra", "Zephyria", "Mechanon", "Nymboria", "Ignis", "Alcyon"];
+
+// Caché de skyboxes
+const skyboxCache = {};
 
 const Fontloader = new FontLoader(manager);
 const TextureLoader = new THREE.CubeTextureLoader(manager);
@@ -58,23 +62,64 @@ function CreateSceneCuestions(globalrenderer){
     controls = new OrbitControls(cameraCuestions, renderer.domElement);
     controls.enableDamping = true;
 
+    //Precargar skyboxes
+    precargarSkyboxes();
     
 
     return [sceneCuestions,cameraCuestions];
 }
 
 
-function CrearSkysphere(){  
+function CrearSkysphere() {  
+    // Intentar obtener el nombre del planeta de la ruta actual
+    const path = TextureLoader.path || '';
+    const pathParts = path.split('/');
+    const planetName = pathParts.length >= 3 ? pathParts[1] : null;
+    
+    // Si tenemos el skybox en caché, usarlo
+    if (planetName && skyboxCache[planetName]) {
+        console.log(`Usando skybox en caché para ${planetName}`);
+        sceneCuestions.background = skyboxCache[planetName];
+        return;
+    }
+    
+    // Si no está en caché, cargar de manera normal
+    console.log(`Cargando skybox para ${planetName || 'desconocido'}`);
     const texture = TextureLoader.load([
-        'px.webp', // Positivo en X (derecha)
-        'nx.webp', // Negativo en X (izquierda)
-        'py.webp', // Positivo en Y (arriba)
-        'ny.webp', // Negativo en Y (abajo)
-        'pz.webp', // Positivo en Z (frente)
-        'nz.webp'  // Negativo en Z (atrás)
+        'px.webp', 'nx.webp', 'py.webp', 'ny.webp', 'pz.webp', 'nz.webp'
     ]);
+    
+    sceneCuestions.background = texture;
+}
 
-        sceneCuestions.background = texture;
+function precargarSkyboxes() {
+    // Crear un TextureLoader separado para evitar conflicto con la configuración del path
+    const preloadLoader = new THREE.CubeTextureLoader(manager);
+    
+    // Precargar cada skybox
+    planetNames.forEach(planetName => {
+        const path = `./img/${planetName}/`;
+        console.log(`Precargando skybox de ${planetName}...`);
+        
+        // Usar un try-catch para evitar que un error en una textura detenga la carga de las demás
+        try {
+            skyboxCache[planetName] = preloadLoader.setPath(path).load(
+                ['px.webp', 'nx.webp', 'py.webp', 'ny.webp', 'pz.webp', 'nz.webp'],
+                // Success callback
+                function() {
+                    console.log(`Skybox de ${planetName} cargado con éxito`);
+                },
+                // Progress callback
+                undefined,
+                // Error callback
+                function(err) {
+                    console.error(`Error cargando skybox de ${planetName}:`, err);
+                }
+            );
+        } catch(e) {
+            console.error(`Error iniciando carga de ${planetName}:`, e);
+        }
+    });
 }
 
 function CreatePregunta(cuestion){

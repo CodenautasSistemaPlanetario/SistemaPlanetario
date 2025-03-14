@@ -20,22 +20,32 @@ manager.onLoad = function () {
     const rocket = document.getElementById("rocket");
     const loadingScreen = document.getElementById("loading-screen");
     
+    // Esperar a que todo esté listo para iniciar animación
     setTimeout(() => {
         if (rocket) {
-            // Iniciar la animación de despegue
+            // Guardar la posición original para referencia
+            const originalPosition = rocket.getBoundingClientRect();
+            
+            // Forzar un reflow para asegurar que el navegador aplica los cambios
+            void rocket.offsetWidth;
+            
+            // Aplicar la animación con JavaScript para mayor compatibilidad
             rocket.style.animation = "takeoff 2s ease-out forwards";
             
-            // Esperar a que termine la animación para ocultar la pantalla
-            setTimeout(() => {
+            // Monitorear el final de la animación
+            rocket.addEventListener('animationend', () => {
+                console.log("Animación de cohete completada");
+                
+                // Desvanecer la pantalla de carga
                 if (loadingScreen) {
                     loadingScreen.style.opacity = "0";
                     loadingScreen.style.transition = "opacity 1s ease";
                     
                     setTimeout(() => {
                         loadingScreen.style.display = "none";
-                    }, 3000);
+                    }, 1000);
                 }
-            }, 2000);
+            });
         }
-    }, 800); // Pausa de 800ms para que se aprecie bien la carga completa
+    }, 800);
 };
