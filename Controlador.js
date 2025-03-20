@@ -36,7 +36,7 @@ let forward = 0;
 let right = 0;
 let yaw = 0;
 let pitch = 0;
-let rotsensitivity =0.001;
+let rotsensitivity =0.0005;
 let camspeed = 4;
 let camforward, camright;
 let EstoyScenePlanets = true;

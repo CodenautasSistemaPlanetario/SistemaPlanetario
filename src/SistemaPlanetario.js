@@ -11,19 +11,19 @@ var clock;
 const planets = [];
 const planetData = [
     { name:'AquaTerra',radius: 2,distance: 8,speed:0.12,  color: 0x2194ce, speedrotation: 0.5026,},//50 seg
-    { name:'Zephyria',radius: 2, distance: 16, speed: 0.0739, color: 0x9b7653, speedrotation: 0.2957,},//1:25min
-    { name:'Mechanon',radius: 2, distance: 22, speed: 0.0502, color: 0x3d9970, speedrotation: 0.201,},// 2:05min
-    { name:'Nymboria',radius: 2, distance: 31, speed: 0.0374, color: 0xa5673f, speedrotation: 0.1496,}, // 2:48 mins
-    { name:'Ignis',radius: 2, distance: 37, speed: 0.0292, color: 0xff0000, speedrotation: 0.1169,},//3:35 mins
-    { name:'Alcyon',radius: 2, distance: 48, speed: 0.0246, color: 0x00ffff, speedrotation: 0.1117,},//4:15mins
+    { name:'Zephyria',radius: 2, distance: 18, speed: 0.0739, color: 0x9b7653, speedrotation: 0.2957,},//1:25min
+    { name:'Mechanon',radius: 2, distance: 28, speed: 0.0502, color: 0x3d9970, speedrotation: 0.201,},// 2:05min
+    { name:'Nymboria',radius: 2, distance: 38, speed: 0.0374, color: 0xa5673f, speedrotation: 0.1496,}, // 2:48 mins
+    { name:'Ignis',radius: 2, distance: 48, speed: 0.0292, color: 0xff0000, speedrotation: 0.1169,},//3:35 mins
+    { name:'Alcyon',radius: 2, distance: 58, speed: 0.0246, color: 0x00ffff, speedrotation: 0.1117,},//4:15mins
 ];
 var sun;
 
 const moons = [];
 const moonData = [
-    { name:'Luna', namePlanet:'Mechanon', radius: 0.5, distance: 4, speed: 0.00748, speedrotation: 0.5,},
-    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 4, speed: 0.005845, speedrotation: 0.5,},
-    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 4, speed:0.005585, speedrotation: 0.5,},
+    { name:'Luna', namePlanet:'Mechanon', radius: 0.5, distance: 3.5, speed: 0.00748, speedrotation: 0.5,},
+    { name:'Phobos', namePlanet:'Nymboria', radius: 0.5, distance: 3.5, speed: 0.005845, speedrotation: 0.5,},
+    { name:'Deimos', namePlanet:'Ignis', radius: 0.5, distance: 3.5, speed:0.005585, speedrotation: 0.5,},
 ];
 
 
