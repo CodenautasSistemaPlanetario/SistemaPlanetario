@@ -194,6 +194,83 @@ function CargarPregunta(){
 }
 
 
+function InicioPreguntas(){
+    const geometry = new THREE.BoxGeometry(6, -1, 0.1);
+    const material = new THREE.MeshBasicMaterial({ color: ButtonColorAnswers });
+    const button = new THREE.Mesh(geometry, material);
+    button.position.set( -4,0,0);
+    button.rotation.y = Math.PI;
+    button.userData = { index: 5 }; // Guardar el índice de la opción    
+    QuizElements.push(button);
+
+    // Texto del botón
+    Fontloader.load(FontName, function (font) {
+        const textGeometry = new TextGeometry("Iniciar Cuestionario", {
+            font: font,
+            size: 0.3, // Ajustar tamaño para evitar estiramiento
+            height: 0.05,
+            curveSegments: 12,
+            depth: 0.05,
+            bevelEnabled: false   
+        }, undefined, undefined, { generateMipmaps: false });
+    
+        textGeometry.computeBoundingBox();
+        textGeometry.center();
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorAnswers });
+    
+        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06);
+        textMesh.rotation.y = Math.PI;
+        
+        sceneCuestions.add( textMesh );
+        
+        QuizElements.push(textMesh);
+    
+    });
+
+    sceneCuestions.add(button);
+    CargarBotonVolver(4,0, 0);
+}
+
+function CargarBotonVolver(x,y,z){
+    const geometry = new THREE.BoxGeometry(6, -1, 0.1);
+    const material = new THREE.MeshBasicMaterial({ color: ButtonColorAnswers });
+    const button = new THREE.Mesh(geometry, material);
+    button.position.set( x,y,z);
+    button.rotation.y = Math.PI;
+    button.userData = { index: 4 }; // Guardar el índice de la opción    
+    QuizElements.push(button);
+
+    // Texto del botón
+    Fontloader.load(FontName, function (font) {
+        const textGeometry = new TextGeometry("Volver a Nebuloria", {
+            font: font,
+            size: 0.3, // Ajustar tamaño para evitar estiramiento
+            height: 0.05,
+            curveSegments: 12,
+            depth: 0.05,
+            bevelEnabled: false   
+        }, undefined, undefined, { generateMipmaps: false });
+    
+        textGeometry.computeBoundingBox();
+        textGeometry.center();
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorAnswers });
+    
+        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
+        textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06);
+        textMesh.rotation.y = Math.PI;
+        
+        sceneCuestions.add( textMesh );
+        
+        QuizElements.push(textMesh);
+    
+    });
+
+    sceneCuestions.add(button);
+}
+
 function CargarResultado(){
     QuizElements.forEach((element) => {
         sceneCuestions.remove(element);
@@ -224,43 +301,9 @@ function CargarResultado(){
     
     });
     
-    // Botón para volver a la escena de los planetas
-    const geometry = new THREE.BoxGeometry(6, -1, 0.1);
-    const material = new THREE.MeshBasicMaterial({ color: ButtonColorAnswers });
-    const button = new THREE.Mesh(geometry, material);
-    button.position.set( 0,-2, 0);
-    button.rotation.y = Math.PI;
-    button.userData = { index: 4 }; // Guardar el índice de la opción    
-    QuizElements.push(button);
-
-    // Texto del botón
-    Fontloader.load(FontName, function (font) {
-        const textGeometry = new TextGeometry("Volver a Nebuloria", {
-            font: font,
-            size: 0.3, // Ajustar tamaño para evitar estiramiento
-            height: 0.05,
-            curveSegments: 12,
-            depth: 0.05,
-            bevelEnabled: false   
-        }, undefined, undefined, { generateMipmaps: false });
-    
-        textGeometry.computeBoundingBox();
-        textGeometry.center();
-
-        const textMaterial = new THREE.MeshBasicMaterial({ color: FontColorAnswers });
-    
-        var textMesh = new THREE.Mesh( textGeometry, textMaterial );
-        textMesh.position.set(button.position.x, button.position.y, button.position.z + 0.06);
-        textMesh.rotation.y = Math.PI;
-        
-        sceneCuestions.add( textMesh );
-        
-        QuizElements.push(textMesh);
-    
-    });
+    CargarBotonVolver(0,-2, 0);
        
    
-    sceneCuestions.add(button);
 
 
 }
@@ -306,10 +349,8 @@ function LoadArrayPreguntas(planetname){
     {
         alreadypladed = false;
         rebootScene();
-        CargarPregunta();
-    } else {
-        CargarPregunta();
     }
+    InicioPreguntas();
     TextureLoader.setPath(path);
     CrearSkysphere();
 }
@@ -357,14 +398,23 @@ function onClick(event) {
     if (intersects.length > 0) {
         const clickedButton = intersects[0].object;
         if (clickedButton.userData.index !== undefined) {
-            if (cuestionIndex < Preguntas.length && clickedButton.userData.index === Preguntas[cuestionIndex][2]) {
-                points++;
+            if (cuestionIndex < Preguntas.length && clickedButton.userData.index !== 4 && clickedButton.userData.index !== 5) {
+                if(clickedButton.userData.index === Preguntas[cuestionIndex][2]){
+                    points++;
+                }
+                console.log("Caragando siguiente pregunta");
+                CargarSiguientePregunta();
             }
             if(clickedButton.userData.index === 4){
                 alreadypladed = true;
+                console.log("Cargando escena planetas");
                 changeScene("scenePlanets");
             }
-            CargarSiguientePregunta();
+            if(clickedButton.userData.index === 5){
+                console.log("Iniciando cuestionario");
+                alreadypladed = true;
+                CargarPregunta();
+            }
         }
     }
 

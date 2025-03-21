@@ -2,10 +2,35 @@ import * as THREE from "three";
 import {changeScene} from "../Controlador.js";
 import { LoadArrayPreguntas } from "./Cuestionario.js";
 import { manager } from './LoadingManager.js';
+import { TextGeometry } from 'https://unpkg.com/three@latest/examples/jsm/geometries/TextGeometry.js';
+import { FontLoader } from 'https://unpkg.com/three@latest/examples/jsm/loaders/FontLoader.js';
 
 //Loader
 const loadertexture = new THREE.TextureLoader(manager);
+const loaderfont = new FontLoader(manager);
+let font ;
+loaderfont.load('./font/ArcaneNine_Regular.json', 
+    // Callback para cuando la fuente se carga con éxito
+    function(loadedFont) {
+        font = loadedFont;
+    PlanetGeometry();
+    MoonGeometry();
+    console.log("Fuente cargada correctamente");
+    },
+    // Callback de progreso (opcional)
+    undefined,
+    // Callback de error
+    function(err) {
+        console.error("Error cargando fuente:", err);
+    }
+);
 var scenePlanets, cameraPlanets, renderer;
+
+//Planet Text 
+const TextSize = 0.5;
+const TextHeight = 0.1;
+const TextColor = 0xffffff;
+const TextDepth = 0.1;
 
 var clock;
 const planets = [];
@@ -66,8 +91,6 @@ function CreateScenePlanets(globalrenderer) {
     // Crear geometría
     StarsGeometry();
     SunGeometry();
-    PlanetGeometry();
-    MoonGeometry();
     //Iluminación
     light();
 
@@ -158,6 +181,9 @@ function SunGeometry() {
 // Planetas
 function PlanetGeometry() {
     planetData.forEach((data) => {
+
+        const planetGroup = new THREE.Group();  
+
         const geometry = new THREE.SphereGeometry(data.radius, 16, 16);
         const planettexture = loadertexture.load(
             TexturePath + data.name + ".webp"
@@ -165,11 +191,34 @@ function PlanetGeometry() {
         planettexture.mapping = THREE.EquirectangularReflectionMapping;
         const material = new THREE.MeshStandardMaterial({ map: planettexture });
         const planet = new THREE.Mesh(geometry, material);
+        planetGroup.add(planet);
+        if(font == undefined){
+            console.log("Font is undefined");
+        }
+
+        const textGeometry = new TextGeometry(data.name, {
+            font: font,
+            size: TextSize,
+            height: TextHeight,
+            depth: TextDepth,
+        });
+        // console.log(textGeometry.text.toString());
+
+        textGeometry.computeBoundingBox();
+        const textWidth = textGeometry.boundingBox.max.x - textGeometry.boundingBox.min.x;
+
+        const textMaterial = new THREE.MeshBasicMaterial({ color: TextColor });
+        const text = new THREE.Mesh(textGeometry, textMaterial);
+        text.position.set(-textWidth / 2, data.radius + 0.7, 0);
+        planetGroup.add(text);
+
+
         const angle = Math.random() * Math.PI * 2;
         const initialX = data.distance * Math.cos(angle);
         const initialZ = data.distance * Math.sin(angle);
-        planet.position.set(initialX, 0, initialZ);
-        planet.userData = {
+        planetGroup.position.set(initialX, 0, initialZ);
+
+        planetGroup.userData = {
             distance: data.distance,
             angle: angle,
             speed: data.speed,
@@ -177,9 +226,9 @@ function PlanetGeometry() {
             initialX: initialX,  // Guardamos la posición inicial
             initialZ: initialZ
         };
-        planet.name = data.name;
-        scenePlanets.add(planet);
-        planets.push(planet);
+        planetGroup.name = data.name;
+        scenePlanets.add(planetGroup);
+        planets.push(planetGroup);
     });
 
 }
@@ -282,17 +331,18 @@ function CheckPlanetsCollisions() {
 
 
     //Check planet collisions
-    planets.forEach((planet) => {
+    planets.forEach((planetGroup) => {
         
         const planetWorldPos = new THREE.Vector3();
-        planet.getWorldPosition(planetWorldPos);
+        planetGroup.getWorldPosition(planetWorldPos);
 
         const cameraWorldPos = new THREE.Vector3();
         cameraPlanets.getWorldPosition(cameraWorldPos);
         const distance = cameraWorldPos.distanceTo(planetWorldPos);
+        const planet = planetGroup.children[0];
 
         if (distance < planet.geometry.parameters.radius + cameraPlanets.near +.2) {
-            LoadArrayPreguntas(planet.name);
+            LoadArrayPreguntas(planetGroup.name);
             document.exitPointerLock();
             alreadyplayed = true;
             changeScene("sceneCuestions");
